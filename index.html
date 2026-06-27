@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Ahorcado — Juego Educativo Argentino</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0f1a;color:#e0e0e0;min-height:100vh}
+
+/* ===== HERO / PORTADA ===== */
+.hero{
+  width:100%;
+  min-height:520px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  padding-bottom:40px;
+}
+.hero-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+  display:block;
+}
+/* Overlay oscuro sobre la foto para que el texto sea legible */
+.hero-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(10,15,26,0.15) 0%,
+    rgba(10,15,26,0.45) 55%,
+    rgba(10,15,26,0.92) 100%
+  );
+}
+/* Placeholder si no hay foto */
+.hero-placeholder{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#0a1230 0%,#0a0f1a 50%,#0a1030 100%);
+  gap:12px;
+}
+.hero-placeholder-icon{font-size:64px;opacity:0.3}
+.hero-placeholder-text{font-size:14px;color:#555;letter-spacing:2px;text-transform:uppercase}
+.hero-content{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  padding:0 20px;
+}
+.hero-title{
+  font-size:clamp(40px,8vw,80px);
+  font-weight:900;
+  color:#ffd700;
+  letter-spacing:-1px;
+  text-shadow:0 0 40px rgba(255,215,0,0.4),0 4px 12px rgba(0,0,0,0.8);
+  line-height:1;
+  margin-bottom:10px;
+}
+.hero-title span{color:#fff}
+.hero-subtitle{
+  font-size:clamp(13px,2.5vw,18px);
+  color:rgba(255,255,255,0.75);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  font-weight:400;
+}
+.hero-cta{
+  display:inline-block;
+  padding:14px 36px;
+  background:#ffd700;
+  color:#0d0d1a;
+  font-size:16px;
+  font-weight:800;
+  border-radius:50px;
+  text-decoration:none;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  transition:all 0.2s;
+  box-shadow:0 4px 20px rgba(255,215,0,0.35);
+}
+.hero-cta:hover{background:#ffec6e;transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,215,0,0.45)}
+
+/* ===== INTRO BAR ===== */
+.intro-bar{
+  background:#0d1525;
+  border-top:1px solid #1a2a3a;
+  border-bottom:1px solid #1a2a3a;
+  padding:20px;
+  display:flex;
+  justify-content:center;
+  gap:40px;
+  flex-wrap:wrap;
+}
+.intro-item{text-align:center}
+.intro-num{font-size:26px;font-weight:800;color:#ffd700}
+.intro-label{font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+/* ===== MAIN CONTENT ===== */
+.main-wrap{max-width:980px;margin:0 auto;padding:30px 16px 60px}
+
+/* ===== GAME FRAME ===== */
+.game-frame{
+  background:#0d1525;
+  border:1px solid #1a2a3a;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:40px;
+}
+.game-frame-title{
+  text-align:center;
+  font-size:13px;
+  letter-spacing:2px;
+  color:#555;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+
+/* ===== GAME STYLES (standalone, no CSS vars) ===== */
+#game{min-height:600px;background:#0a0f1a;color:#e0e0e0;padding:12px;border-radius:12px}
+.screen{display:none}
+.screen.active{display:block}
+#screen-home{text-align:center;padding:20px 10px}
+.home-title{font-size:28px;font-weight:700;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.3);margin-bottom:4px}
+.home-subtitle{font-size:13px;color:#aaa;margin-bottom:20px}
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.cat-btn{padding:14px 8px;border:2px solid;border-radius:12px;cursor:pointer;transition:all 0.2s;background:transparent;text-align:center;font-family:inherit}
+.cat-btn:hover{transform:translateY(-2px)}
+.cat-icon{font-size:28px;display:block;margin-bottom:6px}
+.cat-name{font-size:12px;font-weight:600;letter-spacing:0.5px}
+.cat-btn.arte{border-color:#ff6b9d;color:#ff6b9d}.cat-btn.arte:hover{background:rgba(255,107,157,0.1)}
+.cat-btn.ciencia{border-color:#4ecdc4;color:#4ecdc4}.cat-btn.ciencia:hover{background:rgba(78,205,196,0.1)}
+.cat-btn.cultura{border-color:#ffd700;color:#ffd700}.cat-btn.cultura:hover{background:rgba(255,215,0,0.1)}
+.cat-btn.historia{border-color:#ff8c42;color:#ff8c42}.cat-btn.historia:hover{background:rgba(255,140,66,0.1)}
+.cat-btn.futbol{border-color:#69db7c;color:#69db7c}.cat-btn.futbol:hover{background:rgba(105,219,124,0.1)}
+.section-title{font-size:14px;color:#aaa;margin-bottom:10px;font-weight:500}
+#players-setup{background:#121a2a;border-radius:12px;padding:16px;margin-bottom:16px}
+.player-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.player-row input{flex:1;padding:6px 10px;border-radius:6px;border:1px solid #1e3050;background:#1a2a3a;color:#eee;font-size:13px;font-family:inherit}
+.player-row .player-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.p1{background:#ff6b6b;color:#fff}.p2{background:#4ecdc4;color:#000}.p3{background:#ffd700;color:#000}.p4{background:#a29bfe;color:#fff}
+.btn-start{padding:12px 32px;background:#ffd700;color:#000;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-start:hover{background:#ffec6e;transform:scale(1.03)}
+#screen-game{display:none;grid-template-columns:1fr 280px;gap:12px}
+#screen-game.active{display:grid}
+.game-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.cat-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+.cat-badge.arte{background:rgba(255,107,157,0.2);color:#ff6b9d;border:1px solid #ff6b9d}
+.cat-badge.ciencia{background:rgba(78,205,196,0.2);color:#4ecdc4;border:1px solid #4ecdc4}
+.cat-badge.cultura{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd700}
+.cat-badge.historia{background:rgba(255,140,66,0.2);color:#ff8c42;border:1px solid #ff8c42}
+.cat-badge.futbol{background:rgba(105,219,124,0.2);color:#69db7c;border:1px solid #69db7c}
+.turn-info{font-size:12px;color:#aaa}
+.turn-name{font-weight:700;color:#ffd700}
+.gallows-area{display:flex;justify-content:center;margin-bottom:12px}
+#gallows-svg{width:180px;height:180px}
+.word-display{text-align:center;margin-bottom:12px}
+.word-letters{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.letter-box{width:30px;height:36px;border-bottom:3px solid #eee;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;text-transform:uppercase;color:#ffd700;transition:all 0.3s}
+.letter-box.revealed{color:#ffd700;animation:pop 0.3s ease}
+@keyframes pop{0%{transform:scale(1.5)}100%{transform:scale(1)}}
+.first-letter-hint{font-size:11px;color:#aaa;margin-top:4px}
+.errors-display{text-align:center;margin-bottom:8px}
+.error-dots{display:flex;justify-content:center;gap:4px}
+.error-dot{width:10px;height:10px;border-radius:50%;background:#1a2a3a}
+.error-dot.active{background:#ff6b6b}
+.alphabet-grid{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:10px}
+.letter-btn{width:30px;height:30px;border:1px solid #1e3050;background:#121a2a;color:#eee;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all 0.15s;text-transform:uppercase}
+.letter-btn:hover:not(:disabled){background:#1a2a3a;border-color:#ffd700;color:#ffd700}
+.letter-btn:disabled{opacity:0.3;cursor:not-allowed}
+.letter-btn.correct{background:rgba(105,219,124,0.2);border-color:#69db7c;color:#69db7c}
+.letter-btn.wrong{background:rgba(255,107,107,0.2);border-color:#ff6b6b;color:#ff6b6b}
+.hints-area{display:flex;gap:8px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+.hint-btn{padding:6px 12px;border-radius:6px;border:1px solid #1e3050;background:transparent;color:#aaa;font-size:11px;cursor:pointer;font-family:inherit;transition:all 0.2s;display:flex;align-items:center;gap:4px}
+.hint-btn:hover:not(:disabled){border-color:#ffd700;color:#ffd700}
+.hint-btn:disabled{opacity:0.3;cursor:not-allowed}
+.hint-icon{font-size:14px}
+.hint-penalty{font-size:10px;color:#ff8c42}
+.word-guess-area{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
+.word-guess-input{padding:6px 10px;border-radius:6px;border:1px solid #1e3050;background:#121a2a;color:#eee;font-size:13px;font-family:inherit;text-transform:uppercase;width:160px}
+.btn-guess-word{padding:6px 12px;background:#a29bfe;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.game-right{background:#121a2a;border-radius:12px;padding:12px}
+.scoreboard-title{font-size:13px;font-weight:700;color:#aaa;margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase}
+.player-score-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px;border-radius:8px;transition:all 0.3s}
+.player-score-row.active-player{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3)}
+.player-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.player-score-info{flex:1}
+.player-score-name{font-size:13px;font-weight:600}
+.player-score-pts{font-size:11px;color:#aaa}
+.score-bar{height:4px;background:#0a0f1a;border-radius:2px;margin-top:4px}
+.score-bar-fill{height:4px;border-radius:2px;transition:width 0.5s ease}
+.goal-info{font-size:10px;color:#3a6a8a;margin-top:8px;text-align:center}
+.hint-display{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:8px;margin-top:10px;font-size:12px;color:#ffd700;display:none}
+.hint-display.visible{display:block}
+.msg-area{min-height:28px;text-align:center;font-size:13px;font-weight:600;margin-bottom:6px}
+.msg-success{color:#69db7c}.msg-error{color:#ff6b6b}.msg-info{color:#ffd700}
+#screen-result{text-align:center;padding:30px 20px}
+.winner-title{font-size:32px;font-weight:700;color:#ffd700;margin-bottom:10px}
+.winner-name{font-size:24px;font-weight:700;color:#fff;margin-bottom:20px}
+.final-scores{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;max-width:300px;margin-left:auto;margin-right:auto}
+.final-score-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#121a2a;border-radius:8px}
+.final-score-row.winner{border:2px solid #ffd700}
+.btn-new-game{padding:12px 32px;background:#ffd700;color:#000;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-new-game:hover{background:#ffec6e}
+#screen-gameover{text-align:center;padding:30px 20px}
+.gameover-title{font-size:36px;font-weight:700;color:#ff6b6b;margin-bottom:8px;animation:shake 0.5s ease}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+.gameover-word{font-size:16px;color:#aaa;margin-bottom:20px}
+.gameover-word span{color:#ffd700;font-weight:700}
+.btn-continue{padding:10px 24px;background:#4ecdc4;color:#000;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin:4px}
+.btn-continue:hover{background:#6ee7df}
+
+/* ===== FOOTER ===== */
+footer{text-align:center;padding:24px;font-size:12px;color:#2a5a7a;border-top:1px solid #1a2a3a}
+
+@media(max-width:640px){
+  #screen-game.active{display:flex;flex-direction:column}
+  .game-right{order:-1}
+  #gallows-svg{width:140px;height:140px}
+  .letter-btn{width:26px;height:26px;font-size:11px}
+  .intro-bar{gap:20px}
+}
+.time-opt{
+  display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #1e3050;
+  border-radius:8px;cursor:pointer;font-size:13px;color:#ccc;font-family:inherit;
+  transition:all 0.2s;
+}
+.time-opt:has(input:checked){border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.08)}
+.time-opt input{accent-color:#ffd700}
+.clock-display{
+  font-size:14px;font-weight:700;padding:4px 10px;border-radius:20px;
+  border:1px solid #1e3050;color:#4ecdc4;background:rgba(78,205,196,0.08);
+  transition:all 0.3s;font-variant-numeric:tabular-nums;letter-spacing:1px;
+}
+.clock-display.warning{border-color:#ff8c42;color:#ff8c42;background:rgba(255,140,66,0.12);animation:pulse 0.8s infinite}
+.clock-display.danger{border-color:#ff6b6b;color:#ff6b6b;background:rgba(255,107,107,0.15);animation:pulse 0.4s infinite}
+.clock-display.hidden{display:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HERO — Portada
+     Ponés tu imagen con el nombre "Foto.jpg" en la misma
+     carpeta que este archivo y aparece automáticamente.
+     Si no hay foto se muestra un fondo oscuro de reemplazo.
+============================================================ -->
+<section class="hero" id="hero">
+
+  <!-- FOTO DE PORTADA — reemplazá Foto.jpg con tu imagen -->
+  <img class="hero-img" src="Foto.jpg"
+       alt="Portada El Ahorcado"
+       onerror="this.style.display='none';document.getElementById('hero-ph').style.display='flex'">
+
+  <!-- Placeholder visible solo si Foto.jpg no existe -->
+  <div class="hero-placeholder" id="hero-ph" style="display:none">
+    <div class="hero-placeholder-icon">🪢</div>
+    <div class="hero-placeholder-text">Aquí va tu Foto.jpg de portada</div>
+  </div>
+
+  <!-- Degradado oscuro encima de la foto -->
+  <div class="hero-overlay"></div>
+
+  <!-- Título y CTA sobre la imagen -->
+  <div class="hero-content">
+    <div class="hero-title">🪢 EL <span>AHORCADO</span></div>
+    <div class="hero-subtitle">Juego educativo argentino — Hasta 4 jugadores</div>
+    <a href="#juego" class="hero-cta">¡Jugar ahora!</a>
+  </div>
+</section>
+
+<!-- ============================================================
+     BARRA DE ESTADÍSTICAS
+============================================================ -->
+<div class="intro-bar">
+  <div class="intro-item">
+    <div class="intro-num">5</div>
+    <div class="intro-label">Categorías</div>
+  </div>
+  <div class="intro-item">
+    <div class="intro-num">680+</div>
+    <div class="intro-label">Palabras</div>
+  </div>
+  <div class="intro-item">
+    <div class="intro-num">4</div>
+    <div class="intro-label">Jugadores</div>
+  </div>
+  <div class="intro-item">
+    <div class="intro-num">100</div>
+    <div class="intro-label">Puntos para ganar</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JUEGO
+============================================================ -->
+<div class="main-wrap">
+  <div class="game-frame" id="juego">
+    <div class="game-frame-title">— Seleccioná categoría y jugadores para empezar —</div>
+
+    <div id="game">
+      <div id="screen-home" class="screen active">
+        <div class="home-title">🪢 EL AHORCADO</div>
+        <div class="home-subtitle">Adivina la palabra — ¡Hasta 4 jugadores!</div>
+        <div class="section-title">Elegí la categoría</div>
+        <div class="cats-grid">
+          <button class="cat-btn arte" onclick="selectCat('arte')"><span class="cat-icon">🎨</span><span class="cat-name">ARTE</span></button>
+          <button class="cat-btn ciencia" onclick="selectCat('ciencia')"><span class="cat-icon">🔬</span><span class="cat-name">CIENCIA</span></button>
+          <button class="cat-btn cultura" onclick="selectCat('cultura')"><span class="cat-icon">🧉</span><span class="cat-name">CULTURA ARGENTINA</span></button>
+          <button class="cat-btn historia" onclick="selectCat('historia')"><span class="cat-icon">📜</span><span class="cat-name">HISTORIA ARGENTINA</span></button>
+          <button class="cat-btn futbol" onclick="selectCat('futbol')"><span class="cat-icon">⚽</span><span class="cat-name">FÚTBOL ARGENTINO</span></button>
+        </div>
+        <div class="section-title">Jugadores (1 a 4)</div>
+        <div id="players-setup">
+          <div class="player-row"><div class="player-num p1">1</div><input type="text" id="p1name" placeholder="Nombre Jugador 1" value="Jugador 1" maxlength="15"></div>
+          <div class="player-row"><div class="player-num p2">2</div><input type="text" id="p2name" placeholder="Jugador 2 (opcional)" maxlength="15"></div>
+          <div class="player-row"><div class="player-num p3">3</div><input type="text" id="p3name" placeholder="Jugador 3 (opcional)" maxlength="15"></div>
+          <div class="player-row"><div class="player-num p4">4</div><input type="text" id="p4name" placeholder="Jugador 4 (opcional)" maxlength="15"></div>
+        </div>
+
+        <div class="section-title">⏱ Tiempo por turno</div>
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <label class="time-opt" id="topt-1"><input type="radio" name="timelimit" value="60"> 1 minuto <span style="font-size:10px;color:#888">(difícil)</span></label>
+          <label class="time-opt" id="topt-2"><input type="radio" name="timelimit" value="120" checked> 2 minutos <span style="font-size:10px;color:#888">(normal)</span></label>
+          <label class="time-opt" id="topt-0"><input type="radio" name="timelimit" value="0"> Sin límite</label>
+        </div>
+        <div id="solo-note" style="font-size:11px;color:#4ecdc4;margin-bottom:10px;display:none">🎮 Jugador solo: el reloj corre por toda la partida (4–5 min según dificultad)</div>
+        <button class="btn-start" id="btn-start-game">¡Empezar! 🎮</button>
+        <div id="home-msg" style="margin-top:10px;color:#ff6b6b;font-size:13px;min-height:20px"></div>
+      </div>
+
+      <div id="screen-game" class="screen">
+        <div class="game-left">
+          <div class="game-header">
+            <div id="cat-badge-display" class="cat-badge arte">🎨 ARTE</div>
+            <div class="turn-info">Turno: <span id="turn-name" class="turn-name">—</span></div>
+            <div id="clock-display" class="clock-display">⏱ <span id="clock-time">—</span></div>
+            <button onclick="goHome()" style="padding:4px 10px;border:1px solid #444;background:transparent;color:#aaa;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit">← Inicio</button>
+          </div>
+          <div class="gallows-area">
+            <svg id="gallows-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <!-- Horca fija -->
+              <line x1="20" y1="185" x2="180" y2="185" stroke="#8888aa" stroke-width="4" stroke-linecap="round"/>
+              <line x1="60" y1="185" x2="60" y2="15" stroke="#8888aa" stroke-width="4" stroke-linecap="round"/>
+              <line x1="60" y1="15" x2="130" y2="15" stroke="#8888aa" stroke-width="4" stroke-linecap="round"/>
+              <line x1="130" y1="15" x2="130" y2="38" stroke="#8888aa" stroke-width="4" stroke-linecap="round"/>
+              <!-- Error 1: cabeza + cuello -->
+              <g id="hg-1" display="none">
+                <circle cx="130" cy="54" r="16" stroke="#ff6b6b" stroke-width="3" fill="none"/>
+                <line x1="130" y1="70" x2="130" y2="88" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <!-- Error 2: cuerpo -->
+              <g id="hg-2" display="none">
+                <line x1="130" y1="88" x2="130" y2="132" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <!-- Error 3: piernas -->
+              <g id="hg-3" display="none">
+                <line x1="130" y1="132" x2="110" y2="162" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+                <line x1="130" y1="132" x2="150" y2="162" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <!-- Error 4: brazos + game over -->
+              <g id="hg-4" display="none">
+                <line x1="130" y1="98" x2="106" y2="118" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+                <line x1="130" y1="98" x2="154" y2="118" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+                <rect x="72" y="170" width="116" height="20" rx="4" fill="#1a0000"/>
+                <text x="130" y="184" text-anchor="middle" font-size="12" font-weight="700" fill="#ff6b6b">☠ GAME OVER</text>
+              </g>
+            </svg>
+          </div>
+          <div class="word-display">
+            <div class="word-letters" id="word-letters"></div>
+            <div class="first-letter-hint">Primera letra: <strong id="first-letter" style="color:#ffd700;font-size:16px">?</strong></div>
+          </div>
+          <div class="errors-display">
+            <div style="font-size:11px;color:#aaa;margin-bottom:4px">Errores: <span id="error-count">0</span>/4</div>
+            <div class="error-dots" id="error-dots"></div>
+          </div>
+          <div class="msg-area" id="msg-area"></div>
+          <div class="word-guess-area">
+            <input type="text" class="word-guess-input" id="word-guess-input" placeholder="ADIVINAR PALABRA..." maxlength="20">
+            <button class="btn-guess-word" onclick="guessWord()">Arriesgar</button>
+          </div>
+          <div class="alphabet-grid" id="alphabet-grid"></div>
+          <div class="hints-area">
+            <button class="hint-btn" id="hint-pista" onclick="useHint('pista')"><span class="hint-icon">💡</span> Pista <span class="hint-penalty">(-1 error)</span></button>
+            <button class="hint-btn" id="hint-sinonimo" onclick="useHint('sinonimo')"><span class="hint-icon">📖</span> Sinónimo <span class="hint-penalty">(-2 errores)</span></button>
+          </div>
+          <div class="hint-display" id="hint-display"></div>
+        </div>
+        <div class="game-right">
+          <div class="scoreboard-title">🏆 Marcador</div>
+          <div id="scoreboard"></div>
+          <div class="goal-info">Meta: 100 puntos</div>
+        </div>
+      </div>
+
+      <div id="screen-gameover" class="screen">
+        <div class="gameover-title" id="gameover-title">☠️ AHORCADO</div>
+        <div class="gameover-word">La palabra era: <span id="gameover-word-show"></span></div>
+        <div id="gameover-reason" style="font-size:13px;color:#ff8c42;margin-bottom:12px"></div>
+        <button class="btn-continue" onclick="afterGameOver()">Siguiente ronda</button>
+        <button class="btn-continue" onclick="goHome()" style="background:#ff6b6b;color:#fff">Inicio</button>
+      </div>
+
+      <div id="screen-result" class="screen">
+        <div class="winner-title" id="winner-title">🏆 ¡GANADOR!</div>
+        <div class="winner-name" id="winner-name">—</div>
+        <div class="final-scores" id="final-scores"></div>
+        <button class="btn-new-game" onclick="goHome()">Nueva Partida</button>
+      </div>
+    </div><!-- /#game -->
+  </div><!-- /.game-frame -->
+</div><!-- /.main-wrap -->
+
+<footer>El Ahorcado — Juego educativo argentino · Hecho con ❤️ en Cipolletti</footer>
+
+<script>
+const WORDS={
+  arte:[
+    {w:"pincel",h:"Herramienta del artista",s:"brocha"},{w:"mural",h:"Pintura en pared grande",s:"fresco"},
+    {w:"escultura",h:"Arte en tres dimensiones",s:"estatua"},{w:"lienzo",h:"Tela para pintar",s:"tela"},
+    {w:"acuarela",h:"Pintura con agua",s:"aguada"},{w:"boceto",h:"Dibujo previo rápido",s:"borrador"},
+    {w:"galeria",h:"Espacio de exposición",s:"museo"},{w:"mosaico",h:"Arte con teselas",s:"vitral"},
+    {w:"grabado",h:"Impresión artística",s:"estampa"},{w:"retrato",h:"Imagen de una persona",s:"efigie"},
+    {w:"acrilico",h:"Tipo de pintura moderna",s:"vinilico"},{w:"collage",h:"Arte pegando recortes",s:"ensamble"},
+    {w:"fresco",h:"Pintura sobre yeso húmedo",s:"mural"},{w:"vitral",h:"Vidrio de colores",s:"vidriera"},
+    {w:"ceramica",h:"Arte con arcilla",s:"alfareria"},{w:"tapiz",h:"Tejido decorativo",s:"tapiceria"},
+    {w:"bronce",h:"Metal para esculturas",s:"metal"},{w:"patron",h:"Diseño repetido",s:"motivo"},
+    {w:"paleta",h:"Tabla con colores",s:"gama"},{w:"taller",h:"Espacio de trabajo artístico",s:"estudio"},
+    {w:"modelo",h:"Persona que posa",s:"musa"},{w:"perspectiva",h:"Técnica de profundidad",s:"dimension"},
+    {w:"simetria",h:"Igualdad de lados",s:"equilibrio"},{w:"textura",h:"Superficie táctil",s:"relieve"},
+    {w:"barniz",h:"Recubrimiento final",s:"laca"},{w:"bastidor",h:"Marco para lienzo",s:"marco"},
+    {w:"carboncillo",h:"Material para dibujar negro",s:"carbon"},{w:"claroscuro",h:"Contraste de luz y sombra",s:"contraste"},
+    {w:"gouache",h:"Pintura opaca al agua",s:"tempera"},{w:"xilografia",h:"Grabado en madera",s:"talla"},
+    {w:"pastel",h:"Barra de color seco",s:"crayon"},{w:"oleo",h:"Pintura con aceite",s:"pintura"},
+    {w:"diorama",h:"Escena en miniatura",s:"maqueta"},{w:"origami",h:"Arte del papel doblado",s:"papiroflexia"},
+    {w:"mandala",h:"Diseño circular espiritual",s:"circulo"},{w:"tatuaje",h:"Arte en la piel",s:"tinta"},
+    {w:"stencil",h:"Plantilla para pintar",s:"plantilla"},{w:"tipografia",h:"Arte de las letras",s:"caligrafia"},
+    {w:"fotografia",h:"Captura de luz",s:"foto"},{w:"ballet",h:"Danza clásica",s:"danza"},
+    {w:"opera",h:"Teatro cantado",s:"zarzuela"},{w:"soneto",h:"Poema de 14 versos",s:"poema"},
+    {w:"novela",h:"Narración extensa",s:"libro"},{w:"acuatinta",h:"Técnica de grabado",s:"aguafuerte"},
+    {w:"serigrama",h:"Impresión por malla",s:"serigrafia"},{w:"encaustica",h:"Pintura con cera caliente",s:"encausto"},
+    {w:"cine",h:"Arte de imágenes en movimiento",s:"pelicula"},{w:"performance",h:"Arte en vivo",s:"accion"},
+    {w:"videoarte",h:"Arte con imagen movil",s:"videoclip"},{w:"instalacion",h:"Arte en espacio total",s:"ambiente"},
+    /* ── 50 NUEVAS ── */
+    {w:"escorzo",h:"Figura en perspectiva que da profundidad",s:"perspectiva"},
+    {w:"esfumato",h:"Técnica de contornos difuminados de Da Vinci",s:"difuminado"},
+    {w:"contrapposto",h:"Postura escultórica asimétrica con peso en un pie",s:"postura"},
+    {w:"relieve",h:"Escultura tallada sobre una superficie plana",s:"tallado"},
+    {w:"bodegon",h:"Pintura de objetos y alimentos quietos",s:"naturaleza"},
+    {w:"triptico",h:"Obra compuesta de tres paneles o tablas",s:"diptico"},
+    {w:"retablo",h:"Serie de figuras pintadas que narran un hecho",s:"altar"},
+    {w:"gargola",h:"Desagüe esculpido con figura fantástica",s:"grotesco"},
+    {w:"impresionismo",h:"Movimiento que capta la luz y el instante",s:"puntillismo"},
+    {w:"surrealismo",h:"Arte que representa el mundo de los sueños",s:"dali"},
+    {w:"cubismo",h:"Arte con formas geométricas y múltiples vistas",s:"picasso"},
+    {w:"barroco",h:"Estilo ornamental del siglo XVII",s:"renacimiento"},
+    {w:"renacimiento",h:"Movimiento artístico italiano del siglo XV",s:"humanismo"},
+    {w:"vanguardia",h:"Movimiento artístico rupturista del siglo XX",s:"moderno"},
+    {w:"mecenas",h:"Patrocinador de artistas",s:"sponsor"},
+    {w:"critica",h:"Análisis valorativo de una obra",s:"resenia"},
+    {w:"museum",h:"Palabra latina origen del término museo",s:"pinacoteca"},
+    {w:"paisaje",h:"Pintura que representa la naturaleza",s:"vista"},
+    {w:"desnudo",h:"Representación artística del cuerpo sin ropa",s:"figura"},
+    {w:"autorretrato",h:"Retrato que el artista hace de sí mismo",s:"autoimagen"},
+    {w:"icono",h:"Imagen religiosa de la tradición ortodoxa",s:"imagen"},
+    {w:"maqueta",h:"Modelo a escala de una obra",s:"minatura"},
+    {w:"plano",h:"Representación bidimensional de un espacio",s:"dibujo"},
+    {w:"boceto",h:"Dibujo previo y rápido de una obra",s:"esbozo"},
+    {w:"pigmento",h:"Sustancia que da color a pinturas",s:"colorante"},
+    {w:"cincel",h:"Herramienta para esculpir piedra",s:"gubia"},
+    {w:"moldura",h:"Elemento decorativo en relieve",s:"cornisa"},
+    {w:"replica",h:"Copia de una obra ejecutada por su autor",s:"copia"},
+    {w:"restauracion",h:"Recuperación de una obra dañada",s:"conservacion"},
+    {w:"patrono",h:"Santo protector o mecenas de las artes",s:"protector"},
+    {w:"galeria",h:"Sala donde se exponen obras de arte",s:"museo"},
+    {w:"subasta",h:"Venta pública al mejor postor de obras",s:"remate"},
+    {w:"patrimonio",h:"Conjunto de bienes culturales de un pueblo",s:"herencia"},
+    {w:"movimiento",h:"Corriente artística con rasgos comunes",s:"corriente"},
+    {w:"espacio",h:"Elemento compositivo que rodea las formas",s:"vacio"},
+    {w:"volumen",h:"Sensación de masa tridimensional en arte",s:"masa"},
+    {w:"forma",h:"Contorno o silueta de un elemento visual",s:"figura"},
+    {w:"linea",h:"Elemento básico del dibujo",s:"trazo"},
+    {w:"color",h:"Propiedad visual producida por la luz",s:"tono"},
+    {w:"luz",h:"Elemento que da vida a la pintura",s:"iluminacion"},
+    {w:"sombra",h:"Zona oscura opuesta a la luz",s:"penumbra"},
+    {w:"ritmo",h:"Repetición organizada de elementos visuales",s:"cadencia"},
+    {w:"simbolo",h:"Figura que representa un concepto",s:"signo"},
+    {w:"abstraccion",h:"Arte sin representación figurativa",s:"abstracto"},
+    {w:"figurativo",h:"Arte que representa figuras reconocibles",s:"representativo"},
+    {w:"miniatura",h:"Pintura de tamaño muy reducido",s:"ilustracion"},
+    {w:"mural",h:"Pintura realizada sobre una pared",s:"fresco"},
+    {w:"tinta",h:"Líquido pigmentado para dibujar o escribir",s:"tintero"},
+    {w:"aguafuerte",h:"Técnica de grabado con ácido sobre metal",s:"acuatinta"},
+    {w:"policromia",h:"Uso de varios colores en escultura",s:"multicolor"}
+  ],
+  ciencia:[
+    {w:"atomo",h:"Unidad mínima de la materia",s:"particula"},{w:"molecula",h:"Union de átomos",s:"compuesto"},
+    {w:"celula",h:"Unidad de la vida",s:"microorganismo"},{w:"nucleo",h:"Centro del átomo o celula",s:"centro"},
+    {w:"oxigeno",h:"Gas vital para respirar",s:"aire"},{w:"hidrogeno",h:"Elemento más ligero",s:"gas"},
+    {w:"fotosintesis",h:"Proceso de las plantas con la luz",s:"asimilacion"},{w:"gravedad",h:"Fuerza que atrae masas",s:"pesantez"},
+    {w:"osmosis",h:"Paso de liquido por membrana",s:"difusion"},{w:"proteina",h:"Macromolecula biologica",s:"albumina"},
+    {w:"vitamina",h:"Compuesto organico esencial",s:"nutriente"},{w:"bacteria",h:"Microorganismo unicelular",s:"microbio"},
+    {w:"virus",h:"Agente infeccioso diminuto",s:"patogeno"},{w:"neutron",h:"Particula sin carga del nucleo",s:"particula"},
+    {w:"electron",h:"Particula negativa",s:"carga"},{w:"proton",h:"Particula positiva del nucleo",s:"carga"},
+    {w:"plasma",h:"Cuarto estado de la materia",s:"estado"},{w:"entropia",h:"Medida del desorden",s:"desorden"},
+    {w:"densidad",h:"Masa por unidad de volumen",s:"peso"},{w:"frecuencia",h:"Ciclos por segundo",s:"hertz"},
+    {w:"longitud",h:"Medida de distancia",s:"distancia"},{w:"volumen",h:"Espacio que ocupa algo",s:"capacidad"},
+    {w:"presion",h:"Fuerza sobre superficie",s:"tension"},{w:"temperatura",h:"Medida del calor",s:"calor"},
+    {w:"magneto",h:"Objeto que atrae metales",s:"iman"},{w:"corriente",h:"Flujo de electricidad",s:"flujo"},
+    {w:"resistencia",h:"Oposicion al flujo electrico",s:"impedancia"},{w:"tension",h:"Diferencia de potencial",s:"voltaje"},
+    {w:"potencia",h:"Trabajo por unidad de tiempo",s:"energia"},{w:"refraccion",h:"Cambio de direccion de la luz",s:"desviacion"},
+    {w:"reflexion",h:"Rebote de la luz",s:"rebote"},{w:"espectro",h:"Gama de frecuencias luminosas",s:"arcoiris"},
+    {w:"isotopo",h:"Variante del mismo elemento",s:"variante"},{w:"clorofila",h:"Pigmento verde vegetal",s:"pigmento"},
+    {w:"mitosis",h:"Division celular",s:"division"},{w:"meiosis",h:"Division para reproduccion",s:"germinal"},
+    {w:"enzima",h:"Catalizador biologico",s:"catalizador"},{w:"hormona",h:"Mensajero quimico",s:"mensajero"},
+    {w:"neurona",h:"Celula nerviosa",s:"nervio"},{w:"sinapsis",h:"Union entre neuronas",s:"conexion"},
+    {w:"quasar",h:"Nucleo galactico activo",s:"galaxia"},{w:"nebulosa",h:"Nube de gas estelar",s:"nube"},
+    {w:"supernova",h:"Explosion estelar",s:"explosion"},{w:"reactor",h:"Dispositivo nuclear",s:"central"},
+    {w:"difraccion",h:"Curvado de ondas",s:"curva"},{w:"quimera",h:"Organismo con celulas distintas",s:"hibrido"},
+    {w:"adn",h:"Material genetico",s:"genoma"},{w:"arn",h:"Acido ribonucleico",s:"ribosa"},
+    {w:"agujero",h:"Singularidad espacial",s:"colapso"},{w:"ecuacion",h:"Igualdad matematica",s:"formula"},
+    /* ── 50 NUEVAS ── */
+    {w:"hipotesis",h:"Suposición científica que se pone a prueba",s:"suposicion"},
+    {w:"experimento",h:"Prueba controlada para verificar una hipótesis",s:"ensayo"},
+    {w:"teoria",h:"Explicación validada por evidencia",s:"modelo"},
+    {w:"metabolismo",h:"Procesos químicos que mantienen la vida",s:"catabolismo"},
+    {w:"simbiosis",h:"Relación beneficiosa entre dos organismos",s:"mutualismo"},
+    {w:"extincion",h:"Desaparición completa de una especie",s:"desaparicion"},
+    {w:"evolucion",h:"Cambio gradual de especies a lo largo del tiempo",s:"seleccion"},
+    {w:"ecosistema",h:"Conjunto de seres vivos y su entorno",s:"bioma"},
+    {w:"foton",h:"Partícula elemental de la luz",s:"cuanto"},
+    {w:"catalizador",h:"Sustancia que acelera una reacción química",s:"enzima"},
+    {w:"sedimento",h:"Partículas depositadas por agua o viento",s:"deposito"},
+    {w:"erosion",h:"Desgaste del suelo por agua o viento",s:"desgaste"},
+    {w:"mineral",h:"Sólido inorgánico con estructura cristalina",s:"cristal"},
+    {w:"fosil",h:"Restos de organismo preservado en roca",s:"petrificado"},
+    {w:"tectonica",h:"Teoría del movimiento de placas terrestres",s:"placas"},
+    {w:"volcan",h:"Abertura que expulsa magma",s:"erupcion"},
+    {w:"terremoto",h:"Liberación súbita de energía en la corteza",s:"sismo"},
+    {w:"magma",h:"Roca fundida en el interior de la Tierra",s:"lava"},
+    {w:"litosfera",h:"Capa exterior sólida de la Tierra",s:"corteza"},
+    {w:"atmosfera",h:"Capa gaseosa que envuelve la Tierra",s:"aire"},
+    {w:"magnetismo",h:"Fuerza que atrae materiales ferrosos",s:"imantacion"},
+    {w:"condensacion",h:"Cambio de gas a líquido",s:"licuefaccion"},
+    {w:"evaporacion",h:"Cambio de líquido a gas",s:"vaporacion"},
+    {w:"sublimacion",h:"Cambio de sólido a gas sin pasar por liquido",s:"volatilizacion"},
+    {w:"oxidacion",h:"Reacción con pérdida de electrones",s:"combustion"},
+    {w:"acido",h:"Sustancia con pH menor a 7",s:"corrosivo"},
+    {w:"base",h:"Sustancia con pH mayor a 7",s:"alcalino"},
+    {w:"isotopo",h:"Variante de un elemento con distinto numero másico",s:"variante"},
+    {w:"fusion",h:"Cambio de sólido a liquido por calor",s:"derretimiento"},
+    {w:"fision",h:"División del núcleo atómico",s:"nuclear"},
+    {w:"cuarzo",h:"Mineral muy común de silicato",s:"silice"},
+    {w:"diamante",h:"Mineral más duro de la naturaleza",s:"gema"},
+    {w:"carbono",h:"Elemento base de la vida orgánica",s:"elemento"},
+    {w:"nitrogeno",h:"Gas más abundante en la atmósfera",s:"atmosfera"},
+    {w:"calcio",h:"Mineral esencial para los huesos",s:"oseo"},
+    {w:"sodio",h:"Elemento del cloruro de sodio o sal",s:"sal"},
+    {w:"potasio",h:"Mineral esencial para el corazón",s:"mineral"},
+    {w:"hierro",h:"Mineral que transporta oxígeno en sangre",s:"hemoglobina"},
+    {w:"clorofila",h:"Pigmento verde de las plantas",s:"pigmento"},
+    {w:"clorofluorocarbono",h:"Gas que daña la capa de ozono",s:"freon"},
+    {w:"ozono",h:"Capa protectora de la Tierra en la atmósfera",s:"capa"},
+    {w:"genotipo",h:"Información genética de un organismo",s:"fenotipo"},
+    {w:"fenotipo",h:"Expresión visible del genotipo",s:"expresion"},
+    {w:"mutacion",h:"Cambio en la secuencia del ADN",s:"variacion"},
+    {w:"cromosoma",h:"Estructura que contiene el ADN",s:"gen"},
+    {w:"clon",h:"Organismo genéticamente idéntico a otro",s:"replica"},
+    {w:"vacuna",h:"Preparación que genera inmunidad",s:"inmunizacion"},
+    {w:"anticuerpo",h:"Proteína que combate agentes extraños",s:"inmunoglobulina"},
+    {w:"celula",h:"Unidad mínima de vida",s:"microorganismo"},
+    {w:"respiracion",h:"Proceso de intercambio gaseoso vital",s:"ventilacion"}
+  ],
+  cultura:[
+    {w:"tango",h:"Baile rioplatense",s:"milonga"},{w:"mate",h:"Infusion tipica argentina",s:"yerba"},
+    {w:"asado",h:"Tecnica culinaria argentina",s:"parrilla"},{w:"gaucho",h:"Campesino de las pampas",s:"peon"},
+    {w:"lunfardo",h:"Slang rioplatense",s:"argot"},{w:"chacarera",h:"Danza folklorica argentina",s:"zamba"},
+    {w:"chamame",h:"Musica del litoral argentino",s:"polca"},{w:"boleadora",h:"Arma indigena de cuero",s:"honda"},
+    {w:"facon",h:"Cuchillo del gaucho",s:"cuchillo"},{w:"poncho",h:"Prenda tipica andina",s:"manta"},
+    {w:"alfajor",h:"Dulce tipico argentino",s:"bombon"},{w:"malambo",h:"Danza folklorica masculina",s:"zapateo"},
+    {w:"milonga",h:"Lugar donde se baila tango",s:"salon"},{w:"bandoneon",h:"Instrumento del tango",s:"acordeon"},
+    {w:"payada",h:"Canto gaucho improvisado",s:"contrapunto"},{w:"pulperia",h:"Almacen de la pampa",s:"almacen"},
+    {w:"patagonia",h:"Region sur de Argentina",s:"sur"},{w:"pampas",h:"Llanura argentina",s:"llanura"},
+    {w:"cumbia",h:"Ritmo popular latinoamericano",s:"tropicana"},{w:"carnaval",h:"Fiesta previa a cuaresma",s:"festejo"},
+    {w:"empanada",h:"Masa rellena tipica",s:"pastel"},{w:"chimichurri",h:"Salsa para asado",s:"condimento"},
+    {w:"locro",h:"Guiso tipico andino",s:"guiso"},{w:"carpincho",h:"Roedor gigante pampeano",s:"capibara"},
+    {w:"nandu",h:"Ave corredora argentina",s:"avestruz"},{w:"puma",h:"Felino sudamericano",s:"leon"},
+    {w:"llama",h:"Camelido andino",s:"vicuna"},{w:"guanaco",h:"Camelido patagonico",s:"llama"},
+    {w:"condor",h:"Ave andina majestuosa",s:"aguila"},{w:"yacare",h:"Reptil del litoral",s:"cocodrilo"},
+    {w:"chipa",h:"Pan de maiz paraguayo argentino",s:"pan"},{w:"humita",h:"Pasta de maiz envuelta",s:"tamal"},
+    {w:"mazamorra",h:"Postre de maiz",s:"polenta"},{w:"malbec",h:"Uva tinta mendocina",s:"cepa"},
+    {w:"torrontes",h:"Uva blanca argentina",s:"variedad"},{w:"medialunas",h:"Facturas con forma de luna",s:"croissant"},
+    {w:"dulcedeleche",h:"Crema caramelizada argentina",s:"manjar"},{w:"bombilla",h:"Sorbete para el mate",s:"paja"},
+    {w:"quena",h:"Flauta andina",s:"flauta"},{w:"charango",h:"Guitarrita andina",s:"tiple"},
+    {w:"bombo",h:"Tambor folkorico",s:"tambor"},{w:"zamba",h:"Danza folklorica noroeste",s:"cueca"},
+    {w:"vidalita",h:"Canto popular melancolico",s:"tonada"},{w:"siku",h:"Flauta de pan andina",s:"zampona"},
+    {w:"guampa",h:"Recipiente de asta para mate",s:"recipiente"},{w:"villa",h:"Barrio popular argentino",s:"barrio"},
+    {w:"yerba",h:"Planta del mate",s:"hierba"},{w:"estancia",h:"Gran explotacion agropecuaria",s:"hacienda"},
+    {w:"folklore",h:"Tradicion popular",s:"tradicion"},{w:"fiesta",h:"Celebracion popular",s:"festejo"},
+    /* ── 50 NUEVAS ── */
+    {w:"fernet",h:"Bebida amarga italiana adoptada por Argentina",s:"amargo"},
+    {w:"choripan",h:"Sandwich de chorizo asado símbolo popular",s:"sandwich"},
+    {w:"puchero",h:"Guiso tradicional argentino de carnes y verduras",s:"guiso"},
+    {w:"birra",h:"Palabra del lunfardo para la cerveza",s:"cerveza"},
+    {w:"guacho",h:"Huérfano o apelativo informal rioplatense",s:"huerfano"},
+    {w:"pilcha",h:"Ropa o vestimenta en lunfardo argentino",s:"ropa"},
+    {w:"quilombo",h:"Lío o desorden en lunfardo argentino",s:"lio"},
+    {w:"copado",h:"Algo divertido o agradable en Argentina",s:"genial"},
+    {w:"zarpado",h:"Algo exagerado o impresionante en Argentina",s:"exagerado"},
+    {w:"cebar",h:"Preparar y servir el mate",s:"servir"},
+    {w:"pena",h:"Reunión folklórica de música y danza argentina",s:"reunion"},
+    {w:"vendimia",h:"Fiesta de la cosecha de uva en Mendoza",s:"cosecha"},
+    {w:"gaucho",h:"Hombre libre de la pampa argentina",s:"paisano"},
+    {w:"sortija",h:"Tradición ecuestre gaucha de obtener un aro",s:"anillo"},
+    {w:"carnavalito",h:"Danza del noroeste argentino",s:"danza"},
+    {w:"gato",h:"Danza folklórica argentina de ritmo vivo",s:"danza"},
+    {w:"huella",h:"Danza folklórica argentina similar al gato",s:"trote"},
+    {w:"escondido",h:"Baile folklórico del norte argentino",s:"gato"},
+    {w:"copla",h:"Estrofa de cuatro versos de la poesía popular",s:"estrofa"},
+    {w:"payador",h:"Cantor gaucho que improvisa versos",s:"trovador"},
+    {w:"peringundin",h:"Baile popular rioplatense del siglo XIX",s:"baile"},
+    {w:"cuartetazo",h:"Género musical popular de Córdoba Argentina",s:"cuarteto"},
+    {w:"cumbia",h:"Música tropical de gran popularidad argentina",s:"ritmo"},
+    {w:"tropicana",h:"Estilo festivo de la cumbia villera",s:"cumbia"},
+    {w:"milonga",h:"Canción o danza antecesora del tango",s:"tango"},
+    {w:"tango",h:"Danza y música emblema de Buenos Aires",s:"milonga"},
+    {w:"gardel",h:"El Zorzal Criollo, máximo ídolo del tango",s:"zorzal"},
+    {w:"piazzolla",h:"Maestro del tango de vanguardia",s:"bandoneon"},
+    {w:"rocknacional",h:"Movimiento musical argentino de los 70",s:"rock"},
+    {w:"chamamé",h:"Música y danza del litoral argentino",s:"polca"},
+    {w:"baguala",h:"Canto precolombino del noroeste argentino",s:"canto"},
+    {w:"vidala",h:"Canto ritual del noroeste argentino",s:"tonada"},
+    {w:"aymara",h:"Pueblo originario del altiplano andino",s:"quechua"},
+    {w:"mapuche",h:"Pueblo originario de la Patagonia argentina",s:"indigena"},
+    {w:"guarani",h:"Pueblo y lengua del litoral argentino",s:"pueblo"},
+    {w:"quechua",h:"Lengua de los incas hablada en el noroeste",s:"idioma"},
+    {w:"wichi",h:"Pueblo originario del Chaco argentino",s:"indigena"},
+    {w:"ranquel",h:"Pueblo originario pampeano",s:"indigena"},
+    {w:"carnaval",h:"Festejo previo a la cuaresma con disfraces",s:"fiesta"},
+    {w:"gualeguaychu",h:"Ciudad famosa por su carnaval entre Ríos",s:"carnaval"},
+    {w:"salta",h:"Provincia del norte con rica tradición cultural",s:"norte"},
+    {w:"jujuy",h:"Provincia andina de gran cultura indigena",s:"puna"},
+    {w:"corrientes",h:"Provincia del chamamé y el carnaval",s:"litoral"},
+    {w:"misionesgov",h:"Provincia de las cataratas del Iguazú",s:"iguazu"},
+    {w:"bariloche",h:"Ciudad patagónica de montañas y lagos",s:"nahuel"},
+    {w:"ushuaia",h:"Ciudad más austral del mundo",s:"fin"},
+    {w:"catamarca",h:"Provincia andina famosa por el poncho",s:"andina"},
+    {w:"rioja",h:"La Rioja provincia del noroeste argentino",s:"vino"},
+    {w:"sanluisarg",h:"Provincia de las sierras centrales",s:"sierras"},
+    {w:"voseo",h:"Uso del vos en lugar del tú en Argentina",s:"pronombre"}
+  ],
+  historia:[
+    {w:"belgrano",h:"Creador de la bandera argentina",s:"patriota"},{w:"sanmartin",h:"Libertador de America del Sur",s:"heroe"},
+    {w:"rivadavia",h:"Primer presidente argentino",s:"estadista"},{w:"rosas",h:"Caudillo federal del siglo XIX",s:"dictador"},
+    {w:"urquiza",h:"Organizador de la constitucion",s:"entrerriano"},{w:"constitucion",h:"Ley fundamental argentina",s:"carta"},
+    {w:"virreinato",h:"Division colonial española",s:"colonia"},{w:"cabildo",h:"Gobierno colonial local",s:"ayuntamiento"},
+    {w:"independencia",h:"Hecho de 1816 en Tucuman",s:"libertad"},{w:"tucuman",h:"Provincia donde se declaro la independencia",s:"ciudad"},
+    {w:"mendoza",h:"Provincia cuyana de los Andes",s:"cuyo"},{w:"malvinas",h:"Islas del Atlantico Sur",s:"islas"},
+    {w:"peronismo",h:"Movimiento politico argentino",s:"justicialismo"},{w:"golpe",h:"Interrupcion militar del gobierno",s:"usurpacion"},
+    {w:"exilio",h:"Vivir fuera del pais forzado",s:"destierro"},{w:"censura",h:"Control de la informacion",s:"represion"},
+    {w:"federalismo",h:"Sistema de provincias autonomas",s:"descentralizacion"},{w:"unitarismo",h:"Centralismo politico",s:"centralismo"},
+    {w:"ejercito",h:"Fuerza armada nacional",s:"tropa"},{w:"colonia",h:"Territorio dominado por potencia",s:"dominio"},
+    {w:"caudillo",h:"Lider regional popular",s:"jefe"},{w:"batalla",h:"Enfrentamiento militar",s:"combate"},
+    {w:"tratado",h:"Acuerdo entre naciones",s:"pacto"},{w:"republica",h:"Sistema de gobierno electivo",s:"democracia"},
+    {w:"nacion",h:"Comunidad con territorio propio",s:"pais"},{w:"soberania",h:"Poder supremo del estado",s:"autonomia"},
+    {w:"sufragio",h:"Derecho a votar",s:"voto"},{w:"reforma",h:"Cambio en las instituciones",s:"cambio"},
+    {w:"oligarquia",h:"Gobierno de pocos",s:"elite"},{w:"populismo",h:"Politica de apelacion al pueblo",s:"demagogia"},
+    {w:"sindicato",h:"Organizacion de trabajadores",s:"gremio"},{w:"huelga",h:"Paro de actividades laborales",s:"paro"},
+    {w:"inmigracion",h:"Llegada de extranjeros",s:"migracion"},{w:"ferrocarril",h:"Transporte clave del siglo XIX",s:"tren"},
+    {w:"puerto",h:"Acceso maritimo comercial",s:"darsena"},{w:"aduana",h:"Control de comercio exterior",s:"frontera"},
+    {w:"economia",h:"Administracion de recursos",s:"hacienda"},{w:"deuda",h:"Obligacion financiera",s:"credito"},
+    {w:"inflacion",h:"Suba sostenida de precios",s:"carestia"},{w:"moneda",h:"Medio de intercambio",s:"divisa"},
+    {w:"mapa",h:"Representacion del territorio",s:"plano"},{w:"fronteras",h:"Limites territoriales",s:"limites"},
+    {w:"capital",h:"Ciudad sede del gobierno",s:"cabecera"},{w:"region",h:"Division territorial",s:"zona"},
+    {w:"porteño",h:"Habitante de Buenos Aires",s:"bonaerense"},{w:"guardia",h:"Fuerza militar de custodia",s:"custodia"},
+    {w:"pampa",h:"Llanura fertil argentina",s:"llanura"},{w:"anarquia",h:"Ausencia de gobierno",s:"caos"},
+    {w:"congreso",h:"Organo legislativo nacional",s:"parlamento"},{w:"senado",h:"Camara alta del congreso",s:"camara"},
+    /* ── 50 NUEVAS ── */
+    {w:"asamblea",h:"Reunión del año 1813 que declaró la libertad de vientres",s:"reunion"},
+    {w:"liberacion",h:"Proceso de emancipación política",s:"independencia"},
+    {w:"patria",h:"Tierra natal a la que pertenece una persona",s:"nacion"},
+    {w:"heroe",h:"Persona que realiza actos de valor extraordinario",s:"procer"},
+    {w:"procer",h:"Persona ilustre en la historia de su país",s:"heroe"},
+    {w:"dictadura",h:"Gobierno sin libertades ni elecciones",s:"tirania"},
+    {w:"democracia",h:"Sistema donde el pueblo elige a sus gobernantes",s:"republica"},
+    {w:"eleccion",h:"Acto de votar para elegir autoridades",s:"sufragio"},
+    {w:"partido",h:"Organización política con ideología compartida",s:"movimiento"},
+    {w:"milicias",h:"Fuerzas armadas irregulares de ciudadanos",s:"tropas"},
+    {w:"mazorca",h:"Policía secreta de Rosas que perseguía unitarios",s:"policia"},
+    {w:"unitario",h:"Partidario del centralismo porteño",s:"liberal"},
+    {w:"federal",h:"Partidario de la autonomía provincial",s:"caudillo"},
+    {w:"porteño",h:"Habitante o relativo a Buenos Aires",s:"bonaerense"},
+    {w:"interior",h:"Provincias alejadas de Buenos Aires",s:"provincias"},
+    {w:"litoral",h:"Región argentina sobre el río Paraná",s:"mesopotamia"},
+    {w:"mesopotamia",h:"Región entre los ríos Paraná y Uruguay",s:"entrerrios"},
+    {w:"patagones",h:"Nombre que daban los europeos a los pueblos del sur",s:"tehuelche"},
+    {w:"tehuelche",h:"Pueblo originario de la Patagonia",s:"mapuche"},
+    {w:"araucano",h:"Nombre colonial para los mapuches",s:"mapuche"},
+    {w:"conquista",h:"Proceso de dominación española en América",s:"colonizacion"},
+    {w:"mision",h:"Asentamiento jesuita para evangelizar indigenas",s:"reduccion"},
+    {w:"criollo",h:"Nacido en América de padres españoles",s:"americano"},
+    {w:"mestizo",h:"Hijo de español e indígena",s:"hibrido"},
+    {w:"gaucho",h:"Hombre libre de las pampas del siglo XIX",s:"paisano"},
+    {w:"estanciero",h:"Dueño de una gran estancia ganadera",s:"terrateniente"},
+    {w:"latifundio",h:"Gran extensión de tierra en pocas manos",s:"estancia"},
+    {w:"exportacion",h:"Venta de bienes al exterior",s:"comercio"},
+    {w:"importacion",h:"Compra de bienes del exterior",s:"comercio"},
+    {w:"renta",h:"Ingreso del estado o de los propietarios",s:"ingreso"},
+    {w:"arancel",h:"Impuesto que paga un producto al ingresar al país",s:"impuesto"},
+    {w:"librecambio",h:"Comercio sin trabas ni aranceles",s:"apertura"},
+    {w:"proteccionismo",h:"Política de proteger la industria nacional",s:"arancel"},
+    {w:"crisis",h:"Momento de gran dificultad económica o política",s:"emergencia"},
+    {w:"hiperinflacion",h:"Inflación extremadamente acelerada",s:"inflacion"},
+    {w:"devaluacion",h:"Pérdida del valor de la moneda",s:"depreciacion"},
+    {w:"corralito",h:"Restricción bancaria de 2001 en Argentina",s:"restriccion"},
+    {w:"corralon",h:"Congelamiento de depósitos en dólares 2002",s:"congelamiento"},
+    {w:"default",h:"Cesación de pagos de la deuda externa",s:"cesacion"},
+    {w:"piquete",h:"Protesta que corta una calle o ruta",s:"bloqueo"},
+    {w:"cacerolazos",h:"Protesta popular con cacerolas en 2001",s:"protesta"},
+    {w:"memoria",h:"Ejercicio de recordar el pasado colectivo",s:"recuerdo"},
+    {w:"verdad",h:"Principio de los juicios por derechos humanos",s:"justicia"},
+    {w:"justicia",h:"Principio que juzgó a los represores de la dictadura",s:"verdad"},
+    {w:"madres",h:"Organización de derechos humanos de Plaza de Mayo",s:"plaza"},
+    {w:"desaparecido",h:"Persona secuestrada y asesinada por la dictadura",s:"victima"},
+    {w:"dictador",h:"Quien ejerce el poder sin respaldo popular",s:"tirano"},
+    {w:"junta",h:"Gobierno militar colectivo en la dictadura",s:"gobierno"},
+    {w:"amnistia",h:"Perdón legal de delitos políticos",s:"indulto"},
+    {w:"repatriacion",h:"Regreso de exiliados a su país",s:"retorno"},
+    {w:"kirchnerismo",h:"Movimiento político argentino del siglo XXI",s:"peronismo"}
+  ],
+  futbol:[
+    /* ── SELECCIÓN / MUNDIALES ── */
+    {w:"messi",h:"El mejor del mundo, La Pulga",s:"pulga"},
+    {w:"maradona",h:"El Diez, el mas grande",s:"diez"},
+    {w:"kempes",h:"Goleador del mundial 78",s:"matador"},
+    {w:"fillol",h:"Arquero del mundial 78, el Pato",s:"pato"},
+    {w:"passarella",h:"Capitan del mundial 78, el Kaiser",s:"kaiser"},
+    {w:"ardiles",h:"Volante del mundial 78, el Piton",s:"piton"},
+    {w:"burruchaga",h:"Gol de la final del mundial 86",s:"burru"},
+    {w:"valdano",h:"Delantero del mundial 86, el Filosofo",s:"filosofo"},
+    {w:"batistuta",h:"Goleador historico albiceleste, Batigol",s:"batigol"},
+    {w:"caniggia",h:"El hijo del viento",s:"hijo"},
+    {w:"redondo",h:"El Principe del mediocampo",s:"principe"},
+    {w:"simeone",h:"El Cholo, campeon con seleccion",s:"cholo"},
+    {w:"ortega",h:"El Burrito de Mendoza",s:"burrito"},
+    {w:"zanetti",h:"El Pupi, capitan del inter",s:"pupi"},
+    {w:"ayala",h:"El Raton, defensor de la seleccion",s:"raton"},
+    {w:"samuel",h:"El Toro de la defensa",s:"toro"},
+    {w:"riquelme",h:"El Roman, maestro del juego",s:"roman"},
+    {w:"tevez",h:"El Apache de Fuerte Apache",s:"apache"},
+    {w:"crespo",h:"El Valdanito goleador",s:"valdanito"},
+    {w:"aimar",h:"El Payasito de Rio Cuarto",s:"payasito"},
+    {w:"saviola",h:"El Conejo agil",s:"conejo"},
+    {w:"mascherano",h:"El Jefecito de la seleccion",s:"jefecito"},
+    {w:"higuain",h:"El Pipita goleador",s:"pipita"},
+    {w:"aguero",h:"El Kun de Fuerte Apache",s:"kun"},
+    {w:"lavezzi",h:"El Pocho de napoles",s:"pocho"},
+    {w:"dybala",h:"La Joya de Laguna Larga",s:"joya"},
+    {w:"lautaro",h:"El Toro del inter",s:"toro"},
+    {w:"paredes",h:"Mediocampista campeon en Qatar",s:"leandro"},
+    {w:"otamendi",h:"El Cacheton defensor",s:"cacheton"},
+    {w:"dimaria",h:"El Fideo campeon del mundo",s:"fideo"},
+    {w:"acuna",h:"El Huevo lateral izquierdo",s:"huevo"},
+    {w:"tagliafico",h:"Lateral izquierdo campeon",s:"nico"},
+    {w:"molina",h:"Lateral derecho del atletico",s:"nahuel"},
+    {w:"macallister",h:"El Brighton campeon",s:"alexis"},
+    {w:"montiel",h:"Metio el penal final en Qatar",s:"gonzalo"},
+    {w:"palacios",h:"El Tucu volante de Leverkusen",s:"tucu"},
+    {w:"garnacho",h:"Extremo del Manchester United",s:"alejandro"},
+    {w:"milito",h:"El Principe campeon del inter",s:"principe"},
+    {w:"demichelis",h:"Defensor central y tecnico de River",s:"micho"},
+    {w:"rulli",h:"El Mono arquero campeon",s:"mono"},
+    {w:"almada",h:"Mediocampista del Brighton",s:"thiago"},
+    {w:"romero",h:"El Cuti defensor central",s:"cuti"},
+    {w:"alvarez",h:"La Arana del Manchester City",s:"arana"},
+    {w:"gaitan",h:"El Pichi de Boca",s:"pichi"},
+    {w:"cambiasso",h:"El Cuchu del inter",s:"cuchu"},
+    {w:"milito",h:"Diego el de Zaragoza",s:"diego"},
+    {w:"veron",h:"La Brujita mediocampista",s:"brujita"},
+    {w:"sensini",h:"Defensor del mundial 90",s:"roberto"},
+    {w:"ruggeri",h:"El Cabezón defensor del 86",s:"cabezon"},
+    {w:"brown",h:"Primer gol de la final del 86",s:"jose"},
+    {w:"burru",h:"Apodo del goleador de la final 86",s:"burruchaga"},
+    {w:"olarticoechea",h:"Lateral del mundial 86",s:"julio"},
+    {w:"enrique",h:"Volante del mundial 86",s:"jorge"},
+    {w:"giusti",h:"Volante del mundial 86",s:"ricardo"},
+    {w:"cuciuffo",h:"Defensor del mundial 86",s:"jose"},
+    {w:"pumpido",h:"Arquero del mundial 86",s:"neri"},
+    {w:"goycochea",h:"Arquero heroe del mundial 90",s:"sergio"},
+    {w:"monzon",h:"Expulsado en final del 90",s:"pedro"},
+    {w:"dezotti",h:"Expulsado en final del 90",s:"gustavo"},
+    {w:"palermo",h:"El Titan inmortal de Boca",s:"titan"},
+    {w:"ibarra",h:"El Negro campeon con Boca",s:"negro"},
+    {w:"delgado",h:"Marcelo el de Boca campeón",s:"marcelo"},
+    /* ── JUGADORES HISTORICOS CLUBES ── */
+    {w:"moreno",h:"El Charro idolo de River",s:"charro"},
+    {w:"pedernera",h:"La Maquina de River",s:"maquina"},
+    {w:"labruna",h:"Idolo historico de River",s:"angel"},
+    {w:"loustau",h:"Historico de River Plate",s:"felix"},
+    {w:"muñoz",h:"El Muñeco de La Maquina",s:"muneco"},
+    {w:"alonso",h:"Roberto idolo de River",s:"roberto"},
+    {w:"francescoli",h:"El Principe uruguayo de River",s:"principe"},
+    {w:"gallardo",h:"El Muñeco tecnico de River",s:"muneco"},
+    {w:"pinola",h:"Defensor campeon con River",s:"javier"},
+    {w:"enzo",h:"Fernandez el de River y Chelsea",s:"fernandez"},
+    {w:"borja",h:"El Tigre delantero de River",s:"tigre"},
+    {w:"pratto",h:"El Leon delantero de River",s:"leon"},
+    {w:"quintero",h:"El Juanfer de River",s:"juanfer"},
+    {w:"ponzio",h:"El Baluarte de River",s:"baluarte"},
+    {w:"nacho",h:"Fernandez volante de River",s:"nacho"},
+    {w:"carboni",h:"Juvenil idolo de River",s:"franco"},
+    {w:"colidio",h:"Facundo delantero River",s:"facundo"},
+    {w:"angileri",h:"Lateral izquierdo de River",s:"fabian"},
+    {w:"maidana",h:"Jonatan defensor de River",s:"jonatan"},
+    {w:"casco",h:"Milton lateral de River",s:"milton"},
+    {w:"arias",h:"Franco arquero de River",s:"franco"},
+    {w:"mammana",h:"Emanuel defensor River",s:"emanuel"},
+    {w:"zuculini",h:"Bruno volante de River",s:"bruno"},
+    {w:"romero",h:"Juanpi extremo de River",s:"juanpi"},
+    {w:"palacios",h:"El Tucu idolo de River",s:"tucu"},
+    {w:"suarez",h:"El Chaquito de Independiente",s:"chaquito"},
+    {w:"bochini",h:"El Bocha idolo de Independiente",s:"bocha"},
+    {w:"bertoni",h:"Daniel campeon del 78",s:"daniel"},
+    {w:"balbo",h:"El Chino de Independiente",s:"chino"},
+    {w:"milani",h:"Arquero de Independiente",s:"jorge"},
+    {w:"mancuso",h:"Defensor de Racing Club",s:"agustin"},
+    {w:"copetti",h:"Delantero de Racing",s:"enzo"},
+    {w:"lisandro",h:"Lopez idolo de Racing",s:"lisandro"},
+    {w:"pillud",h:"El lateral de Racing campeon",s:"victor"},
+    {w:"cvitanich",h:"El Toro delantero Racing",s:"dario"},
+    {w:"barbieri",h:"Arquero historico de Racing",s:"oscar"},
+    {w:"mostaza",h:"Merlo el tecnico argentino",s:"merlo"},
+    {w:"bianchi",h:"El Virrey campeon con Boca",s:"virrey"},
+    {w:"basile",h:"El Coco campeon con seleccion",s:"coco"},
+    {w:"pekerman",h:"Jose campeon juvenil",s:"jose"},
+    {w:"menotti",h:"El Flaco campeon del mundo 78",s:"flaco"},
+    {w:"bilardo",h:"El Doctor campeon del mundo 86",s:"doctor"},
+    {w:"sabella",h:"Alejandro finalista del 14",s:"alejandro"},
+    {w:"scaloni",h:"Lionel campeon del mundo 22",s:"lionel"},
+    {w:"bauza",h:"Edgardo tecnico de seleccion",s:"edgardo"},
+    {w:"batista",h:"El Gringo campeon del 86",s:"gringo"},
+    /* ── BOCA JUNIORS ── */
+    {w:"boca",h:"El Xeneize de la Boca",s:"xeneize"},
+    {w:"xeneize",h:"Apodo de Boca Juniors",s:"boca"},
+    {w:"bombonera",h:"Estadio de Boca Juniors",s:"estadio"},
+    {w:"roman",h:"Apodo de Riquelme en Boca",s:"riquelme"},
+    {w:"carlitos",h:"Tevez en Boca su apodo",s:"tevez"},
+    {w:"teves",h:"Carlos delantero ídolo de Boca",s:"apache"},
+    {w:"palermo",h:"El Titan goleador de Boca",s:"titan"},
+    {w:"zanetti",h:"El Pupi lateral de Boca",s:"pupi"},
+    {w:"ibarra",h:"El Negro campeon con Boca",s:"negro"},
+    {w:"bermudez",h:"Defensor central de Boca",s:"el mono"},
+    {w:"traverso",h:"Lateral de Boca campeon",s:"roberto"},
+    {w:"serna",h:"El Macaco de Boca",s:"macaco"},
+    {w:"delgado",h:"Marcelo delantero de Boca",s:"marcelo"},
+    {w:"gago",h:"El Pintita de Boca",s:"pintita"},
+    {w:"tevez",h:"El Apache idolo de Boca",s:"apache"},
+    {w:"perez",h:"Nicolas mediocampista Boca",s:"nicolas"},
+    {w:"salvio",h:"El Toto extremo de Boca",s:"toto"},
+    {w:"cardona",h:"El Pipa colombiano de Boca",s:"pipa"},
+    {w:"mas",h:"Frank lateral derecho Boca",s:"frank"},
+    {w:"weigandt",h:"Lateral de Boca Juniors",s:"guillermo"},
+    {w:"rojo",h:"Marcos defensor de Boca",s:"marcos"},
+    {w:"fabra",h:"Frank lateral colombiano Boca",s:"frank"},
+    {w:"villa",h:"Sebastian extremo de Boca",s:"villa"},
+    {w:"zeballos",h:"Valentin extremo de Boca",s:"valentin"},
+    {w:"vidal",h:"Arturo el King en Boca",s:"king"},
+    {w:"merentiel",h:"Milton delantero de Boca",s:"milo"},
+    {w:"langoni",h:"Exequiel juvenil de Boca",s:"langoni"},
+    {w:"orion",h:"Agustin arquero de Boca",s:"agustin"},
+    {w:"andrada",h:"Esteban arquero de Boca",s:"esteban"},
+    {w:"rossi",h:"Agustin arquero idolo Boca",s:"agustin"},
+    {w:"chichizola",h:"Leandro arquero de Boca",s:"leandro"},
+    {w:"marcos",h:"Rojo defensor de Boca",s:"rojo"},
+    {w:"cavani",h:"El Matador uruguayo en Boca",s:"matador"},
+    /* ── RIVER PLATE ── */
+    {w:"river",h:"El Millonario de Nunez",s:"millonario"},
+    {w:"millonario",h:"Apodo de River Plate",s:"river"},
+    {w:"monumental",h:"Estadio de River Plate",s:"estadio"},
+    {w:"nunez",h:"Barrio donde juega River",s:"barrio"},
+    {w:"muñeco",h:"Apodo de Gallardo en River",s:"gallardo"},
+    {w:"juanfer",h:"Apodo de Quintero en River",s:"quintero"},
+    {w:"pity",h:"Martinez el extremo de River",s:"martinez"},
+    {w:"mora",h:"Lucas delantero de River",s:"lucas"},
+    {w:"ferreira",h:"Facundo delantero River",s:"facundo"},
+    {w:"colidio",h:"Facundo extremo de River",s:"facundo"},
+    {w:"palavecino",h:"Nicolas volante River",s:"nicolas"},
+    {w:"simon",h:"Agustin volante River",s:"agustin"},
+    {w:"herrera",h:"Enzo mediocampista River",s:"enzo"},
+    {w:"diaz",h:"Paulo delantero de River",s:"paulo"},
+    {w:"lanzini",h:"El Mago de River y West Ham",s:"mago"},
+    {w:"scocco",h:"El Narigon delantero River",s:"narigon"},
+    {w:"alario",h:"El Toro delantero de River",s:"toro"},
+    {w:"kranevitter",h:"Mediocampista de River",s:"matias"},
+    {w:"kranevitter",h:"Volante de River Plate",s:"matias"},
+    /* ── SAN LORENZO ── */
+    {w:"cuervo",h:"Apodo de San Lorenzo",s:"sanlorenzo"},
+    {w:"sanlorenzo",h:"El Ciclon de Almagro",s:"ciclon"},
+    {w:"ciclon",h:"Apodo de San Lorenzo",s:"cuervo"},
+    {w:"pedrero",h:"Estadio historico San Lorenzo",s:"gasometro"},
+    {w:"gasometro",h:"Estadio de San Lorenzo",s:"estadio"},
+    {w:"palermo",h:"Martin idolo San Lorenzo",s:"palermo"},
+    {w:"kily",h:"Gonzalez idolo de San Lorenzo",s:"gonzalez"},
+    {w:"cauteruccio",h:"Mauro delantero San Lorenzo",s:"mauro"},
+    {w:"romero",h:"Julio arquero de San Lorenzo",s:"julio"},
+    {w:"blanco",h:"Sebastian delantero San Lorenzo",s:"sebastian"},
+    {w:"piatti",h:"Pablo extremo San Lorenzo",s:"pablo"},
+    {w:"orion",h:"Agustin arquero San Lorenzo",s:"agustin"},
+    /* ── INDEPENDIENTE ── */
+    {w:"rojo",h:"Apodo de Independiente",s:"independiente"},
+    {w:"diablo",h:"Apodo alternativo Independiente",s:"rojo"},
+    {w:"libertadores",h:"Independiente gano 7 copas",s:"copa"},
+    {w:"bochini",h:"El Bocha idolo de Independiente",s:"bocha"},
+    {w:"balbo",h:"El Chino goleador del Rojo",s:"chino"},
+    {w:"aguero",h:"Sergio el Kun de Independiente",s:"kun"},
+    {w:"romero",h:"Julio arquero del Rojo",s:"julio"},
+    {w:"silvio",h:"Romero delantero Independiente",s:"silvio"},
+    {w:"togni",h:"Lateral del Rojo",s:"nicolas"},
+    /* ── RACING CLUB ── */
+    {w:"racing",h:"La Academia de Avellaneda",s:"academia"},
+    {w:"academia",h:"Apodo de Racing Club",s:"racing"},
+    {w:"cilindro",h:"Estadio de Racing Club",s:"estadio"},
+    {w:"lisandro",h:"Lopez idolo de Racing",s:"lopez"},
+    {w:"copetti",h:"Enzo delantero de Racing",s:"enzo"},
+    {w:"pillud",h:"Victor lateral de Racing",s:"victor"},
+    {w:"cvitanich",h:"Dario el Toro de Racing",s:"toro"},
+    {w:"solari",h:"Juan Cruz volante Racing",s:"juancruz"},
+    {w:"leal",h:"Adrian volante de Racing",s:"adrian"},
+    {w:"sigali",h:"Leonardo defensor Racing",s:"leonardo"},
+    {w:"rojas",h:"Alexis lateral Racing",s:"alexis"},
+    /* ── OTROS CLUBES GRANDES ── */
+    {w:"huracan",h:"El Globo de Parque Patricios",s:"globo"},
+    {w:"globo",h:"Apodo de Huracan",s:"huracan"},
+    {w:"velez",h:"El Fortín de Liniers",s:"fortin"},
+    {w:"fortin",h:"Apodo de Velez Sarsfield",s:"velez"},
+    {w:"lanus",h:"El Granate del sur",s:"granate"},
+    {w:"granate",h:"Apodo de Lanus",s:"lanus"},
+    {w:"estudiantes",h:"El Pincha de La Plata",s:"pincha"},
+    {w:"pincha",h:"Apodo de Estudiantes LP",s:"estudiantes"},
+    {w:"gimnasia",h:"El Lobo de La Plata",s:"lobo"},
+    {w:"lobo",h:"Apodo de Gimnasia LP",s:"gimnasia"},
+    {w:"platense",h:"El Calamar de Vicente Lopez",s:"calamar"},
+    {w:"sarandi",h:"Arsenal de Sarandi",s:"arsenal"},
+    {w:"tigre",h:"El Matador de Victoria",s:"matador"},
+    {w:"banfield",h:"El Taladro del sur",s:"taladro"},
+    {w:"taladro",h:"Apodo de Banfield",s:"banfield"},
+    {w:"quilmes",h:"El Cervecero de Quilmes",s:"cervecero"},
+    {w:"cervecero",h:"Apodo de Quilmes",s:"quilmes"},
+    {w:"belgrano",h:"El Pirata de Cordoba",s:"pirata"},
+    {w:"talleres",h:"La T de Cordoba",s:"cordoba"},
+    {w:"atletico",h:"Tucuman el Decano",s:"decano"},
+    {w:"decano",h:"Apodo Atletico Tucuman",s:"atletico"},
+    {w:"colon",h:"El Sabalero de Santa Fe",s:"sabalero"},
+    {w:"sabalero",h:"Apodo de Colon",s:"colon"},
+    {w:"union",h:"El Tate de Santa Fe",s:"tate"},
+    {w:"newells",h:"La Lepra de Rosario",s:"lepra"},
+    {w:"lepra",h:"Apodo de Newells",s:"newells"},
+    {w:"rosario",h:"Central el Canalla",s:"canalla"},
+    {w:"canalla",h:"Apodo de Rosario Central",s:"rosario"},
+    {w:"central",h:"Rosario el Canalla",s:"canalla"},
+    {w:"godoy",h:"Cruz el Tomba de Mendoza",s:"tomba"},
+    {w:"tomba",h:"Apodo de Godoy Cruz",s:"godoy"},
+    {w:"aldosivi",h:"El Tiburon de Mar del Plata",s:"tiburon"},
+    {w:"patronato",h:"El Santo de Parana",s:"santo"},
+    {w:"defensa",h:"Y Justicia el Halcon",s:"halcon"},
+    {w:"halcon",h:"Apodo de Defensa y Justicia",s:"defensa"},
+    {w:"arsenal",h:"El Arse de Sarandi",s:"sarandi"},
+    {w:"sarmiento",h:"El Verde de Junin",s:"verde"},
+    {w:"platense",h:"El Calamar del norte",s:"calamar"},
+    {w:"riestra",h:"Club de Villa del Parque",s:"villa"},
+    {w:"chimichurri",h:"Apodo Racing de Chivilcoy",s:"racing"},
+    {w:"tucuman",h:"Atletico el Decano del norte",s:"decano"},
+    /* ── JUGADORES ACTUALES LIGA ARGENTINA ── */
+    {w:"borja",h:"Miguel el Tigre delantero River",s:"tigre"},
+    {w:"suarez",h:"Marcos delantero River",s:"marcos"},
+    {w:"palavecino",h:"Nicolas volante River",s:"nicolas"},
+    {w:"colidio",h:"Facundo extremo de River",s:"facundo"},
+    {w:"lux",h:"German arquero de Talleres",s:"german"},
+    {w:"meza",h:"Maximiliano extremo Racing",s:"maxi"},
+    {w:"gignac",h:"No es argentino pero amado en Mexico",s:"tigres"},
+    {w:"juarez",h:"Federico defensor Racing",s:"fede"},
+    {w:"nardoni",h:"Ian volante de Racing",s:"ian"},
+    {w:"galeano",h:"Enzo extremo Independiente",s:"enzo"},
+    {w:"molinas",h:"Nicolas lateral Rosario Central",s:"nicolas"},
+    {w:"gamba",h:"Rodrigo delantero Newells",s:"rodrigo"},
+    {w:"cacciabue",h:"Facundo volante Estudiantes",s:"facundo"},
+    {w:"zuqui",h:"Joaquin volante Estudiantes",s:"joaquin"},
+    {w:"andrade",h:"Nelson volante Colon",s:"nelson"},
+    {w:"bernardi",h:"Federico extremo Colon",s:"fede"},
+    {w:"osella",h:"Facundo tecnico argentino",s:"facundo"},
+    {w:"milito",h:"Gabriel tecnico Argentinos",s:"gabriel"},
+    {w:"dominguez",h:"Julio tecnico San Lorenzo",s:"julio"},
+    {w:"heinze",h:"Gabriel el Gringo tecnico",s:"gringo"},
+    {w:"mascherano",h:"Javier ahora tecnico seleccion",s:"jefecito"},
+    {w:"lavallen",h:"German tecnico de Colon",s:"german"},
+    {w:"alfaro",h:"Sebastian tecnico de Boca",s:"sebastian"},
+    /* ── TÉCNICOS HISTÓRICOS ── */
+    {w:"menotti",h:"El Flaco campeon 78",s:"flaco"},
+    {w:"bilardo",h:"El Doctor campeon 86",s:"doctor"},
+    {w:"basile",h:"El Coco subcampeon 90",s:"coco"},
+    {w:"pekerman",h:"Jose campeon juvenil",s:"jose"},
+    {w:"bianchi",h:"El Virrey campeon Boca",s:"virrey"},
+    {w:"gallardo",h:"El Muñeco idolo de River",s:"muneco"},
+    {w:"scaloni",h:"Lionel campeon Qatar 2022",s:"lionel"},
+    {w:"sabella",h:"Alejandro finalista 2014",s:"alejandro"},
+    {w:"batista",h:"El Gringo tecnico 2010",s:"gringo"},
+    {w:"bauza",h:"Edgardo tecnico albiceleste",s:"edgardo"},
+    {w:"mostaza",h:"Merlo el Mostaza tecnico",s:"merlo"},
+    {w:"paunovic",h:"Veljko tecnico de Huracan",s:"veljko"},
+    {w:"tevez",h:"Carlos ahora tecnico Independiente",s:"carlos"},
+    {w:"demichelis",h:"Martin tecnico de River",s:"martin"},
+    {w:"almeyda",h:"El Turco mediocampista y tecnico",s:"turco"},
+    {w:"arruabarrena",h:"Rodolfo tecnico de Boca",s:"rodolfo"},
+    {w:"russo",h:"Miguel Angel tecnico Boca",s:"miguel"},
+    {w:"tassara",h:"Sergio tecnico Belgrano",s:"sergio"},
+    {w:"arzura",h:"Facundo volante Belgrano",s:"facundo"},
+    {w:"vegetti",h:"Mateo delantero Belgrano",s:"mateo"},
+    /* ── ESTADIOS ── */
+    {w:"bombonera",h:"La Boca Juniors estadio",s:"boca"},
+    {w:"monumental",h:"El mas grande de Argentina",s:"river"},
+    {w:"cilindro",h:"Estadio de Racing en Avellaneda",s:"racing"},
+    {w:"libertadores",h:"Estadio de San Lorenzo",s:"sanlorenzo"},
+    {w:"bicentenario",h:"Estadio de San Juan",s:"sanjuan"},
+    {w:"kempes",h:"Estadio de Cordoba ciudad",s:"cordoba"},
+    {w:"malvinas",h:"Estadio de Mendoza",s:"mendoza"},
+    {w:"gigante",h:"Estadio de Rosario Central",s:"rosario"},
+    {w:"marcovecchio",h:"Estadio de Colon Santa Fe",s:"colon"},
+    {w:"mundialista",h:"Estadio de Mar del Plata",s:"mardelplata"},
+    {w:"23agosto",h:"Estadio de Argentinos Juniors",s:"argentinos"},
+    {w:"palermo",h:"Estadio historico de Lanus",s:"lanus"},
+    {w:"jose",h:"Estadio Amalfitani de Velez",s:"velez"},
+    {w:"tomas",h:"Adolfo Dock Sud Racing",s:"racing"},
+    /* ── CONCEPTOS FUTBOLISTICOS ARGENTINOS ── */
+    {w:"potrero",h:"Cancha de tierra donde se aprende",s:"canchita"},
+    {w:"picado",h:"Partido informal en el potrero",s:"fulbito"},
+    {w:"gambeta",h:"Regate tipico del futbol argentino",s:"regate"},
+    {w:"pared",h:"Pase de dos y uno",s:"combinacion"},
+    {w:"caño",h:"Pasar la pelota entre las piernas",s:"tunelito"},
+    {w:"bicicleta",h:"Finta de regate con el cuerpo",s:"finta"},
+    {w:"palomita",h:"Gol de cabeza en vuelo",s:"cabezazo"},
+    {w:"chilena",h:"Gol de volea hacia atras",s:"tijera"},
+    {w:"rabona",h:"Patear cruzando la pierna",s:"cruzada"},
+    {w:"taconazo",h:"Pase o gol con el tacon",s:"tacon"},
+    {w:"sombrerito",h:"Pase por arriba del rival",s:"vaselina"},
+    {w:"vaselina",h:"Gol suave por arriba del arquero",s:"globito"},
+    {w:"cañonazo",h:"Tiro muy fuerte al arco",s:"bombazo"},
+    {w:"penal",h:"Tiro desde los once metros",s:"penalti"},
+    {w:"tiro",h:"Libre directo o indirecto",s:"libre"},
+    {w:"corner",h:"Tiro de esquina",s:"saque"},
+    {w:"offside",h:"Posicion adelantada",s:"fuera"},
+    {w:"arquero",h:"El portero en Argentina",s:"portero"},
+    {w:"nueve",h:"El delantero centro clasico",s:"centrodelantero"},
+    {w:"diez",h:"El mediapunta creativo",s:"enganche"},
+    {w:"enganche",h:"El mediapunta creativo argentino",s:"diez"},
+    {w:"volante",h:"El mediocampista en Argentina",s:"mediocampista"},
+    {w:"stopper",h:"El defensor central marcador",s:"defensor"},
+    {w:"libero",h:"El defensor de cobertura",s:"cobertura"},
+    {w:"lateral",h:"El carrilero en Argentina",s:"carrilero"},
+    {w:"puntero",h:"El extremo en Argentina",s:"extremo"},
+    {w:"centroforward",h:"El delantero centro clasico",s:"delantero"},
+    {w:"superclasico",h:"Boca vs River el partido",s:"clasico"},
+    {w:"clasico",h:"Partido entre rivales historicos",s:"derby"},
+    {w:"descenso",h:"Bajar a la B Nacional",s:"relegacion"},
+    {w:"ascenso",h:"Subir a la Primera Division",s:"promocion"},
+    {w:"torneo",h:"La competicion del futbol argentino",s:"campeonato"},
+    {w:"apertura",h:"Primer torneo del año",s:"inicial"},
+    {w:"clausura",h:"Segundo torneo del año",s:"final"},
+    {w:"promedio",h:"Sistema de descenso argentino",s:"media"},
+    {w:"hinchada",h:"Los hinchas del club",s:"barra"},
+    {w:"barra",h:"La hinchada mas fervorosa",s:"ultras"},
+    {w:"trapo",h:"La bandera enorme de la hinchada",s:"bandera"},
+    {w:"bombo",h:"El instrumento de la hinchada",s:"tambor"},
+    {w:"cancha",h:"El campo de juego argentino",s:"campo"},
+    {w:"tribuna",h:"Las gradas del estadio",s:"gradas"},
+    {w:"palco",h:"La tribuna oficial del estadio",s:"platea"},
+    {w:"platea",h:"Sector techado del estadio",s:"tribuna"},
+    {w:"popular",h:"La tribuna sin asientos",s:"graderia"},
+    {w:"diluvio",h:"Cancha inundada juego se suspende",s:"lluvia"},
+    {w:"pileta",h:"Cancha totalmente inundada",s:"diluvio"},
+    {w:"greda",h:"Cancha de tierra mojada",s:"barro"},
+    /* ── COMPETENCIAS ── */
+    {w:"libertadores",h:"La copa mas importante de Sudamerica",s:"copa"},
+    {w:"sudamericana",h:"Segunda copa continental",s:"copa"},
+    {w:"recopa",h:"Final entre campeon libertadores y sudamericana",s:"copa"},
+    {w:"intercontinental",h:"Copa entre campeon europeo y americano",s:"copa"},
+    {w:"mundial",h:"El torneo de selecciones",s:"copa"},
+    {w:"eliminatoria",h:"La clasificacion al mundial",s:"clasificacion"},
+    {w:"conmebol",h:"Confederacion sudamericana",s:"confederacion"},
+    {w:"afa",h:"Asociacion del Futbol Argentino",s:"asociacion"},
+    {w:"primera",h:"La maxima division del futbol arg",s:"division"},
+    {w:"nacional",h:"La segunda division argentina",s:"bnacional"},
+    {w:"reducido",h:"Torneo para evitar el descenso",s:"playoff"},
+    /* ── APODOS CÉLEBRES ── */
+    {w:"pulga",h:"Apodo de Messi por su tamaño",s:"messi"},
+    {w:"diez",h:"El numero de Maradona y Messi",s:"maglia"},
+    {w:"pibe",h:"Apodo de Maradona en Italia",s:"maradona"},
+    {w:"matador",h:"Apodo de Kempes y otros goleadores",s:"goleador"},
+    {w:"titan",h:"Apodo de Palermo en Boca",s:"palermo"},
+    {w:"apache",h:"Apodo de Tevez de Fuerte Apache",s:"tevez"},
+    {w:"fideo",h:"Apodo de Di Maria por lo delgado",s:"dimaria"},
+    {w:"kun",h:"Apodo de Aguero desde su infancia",s:"aguero"},
+    {w:"joya",h:"Apodo de Dybala",s:"dybala"},
+    {w:"arana",h:"Apodo de Julian Alvarez",s:"alvarez"},
+    {w:"bocha",h:"Apodo de Bochini en Independiente",s:"bochini"},
+    {w:"muñeco",h:"Apodo de Gallardo y Muñoz",s:"gallardo"},
+    {w:"cholo",h:"Apodo de Simeone",s:"simeone"},
+    {w:"coco",h:"Apodo de Alfio Basile",s:"basile"},
+    {w:"flaco",h:"Apodo de Menotti",s:"menotti"},
+    {w:"doctor",h:"Apodo de Bilardo el medico",s:"bilardo"},
+    {w:"virrey",h:"Apodo de Carlos Bianchi",s:"bianchi"},
+    {w:"kaiser",h:"Apodo de Passarella",s:"passarella"},
+    {w:"burrito",h:"Apodo de Ortega",s:"ortega"},
+    {w:"payasito",h:"Apodo de Pablo Aimar",s:"aimar"},
+    {w:"conejo",h:"Apodo de Javier Saviola",s:"saviola"},
+    {w:"piton",h:"Apodo de Osvaldo Ardiles",s:"ardiles"},
+    {w:"principe",h:"Apodo de Redondo y Milito",s:"redondo"},
+    {w:"jefecito",h:"Apodo de Mascherano",s:"mascherano"},
+    {w:"pipita",h:"Apodo de Gonzalo Higuain",s:"higuain"},
+    {w:"pocho",h:"Apodo de Lavezzi",s:"lavezzi"},
+    {w:"raton",h:"Apodo de Roberto Ayala",s:"ayala"},
+    {w:"pato",h:"Apodo de Ubaldo Fillol",s:"fillol"},
+    {w:"cabezon",h:"Apodo de Oscar Ruggeri",s:"ruggeri"},
+    {w:"brujita",h:"Apodo de Juan Veron",s:"veron"},
+    {w:"pintita",h:"Apodo de Fernando Gago",s:"gago"},
+    {w:"mago",h:"Apodo de Manuel Lanzini",s:"lanzini"},
+    {w:"narigon",h:"Apodo de Scocco en River",s:"scocco"},
+    {w:"turco",h:"Apodo de Matias Almeyda",s:"almeyda"},
+    {w:"tigre",h:"Apodo de Borja en River",s:"borja"},
+    {w:"leon",h:"Apodo de Lucas Pratto River",s:"pratto"},
+    {w:"juanfer",h:"Apodo de Juan Fernando Quintero",s:"quintero"},
+    {w:"tucu",h:"Apodo de Rodrigo De Paul y Palacios",s:"palacios"},
+    {w:"micho",h:"Apodo de Demichelis",s:"demichelis"},
+    {w:"chaquito",h:"Apodo de Ramon Suarez Independiente",s:"suarez"},
+    {w:"chino",h:"Apodo de Abel Balbo",s:"balbo"},
+    {w:"macaco",h:"Apodo de Serna en Boca",s:"serna"},
+    {w:"rey",h:"Apodo informal de varios cracks",s:"crack"},
+    /* ── JUGADORES HISTÓRICOS ADICIONALES ── */
+    {w:"sivori",h:"Omar el Cabezón idolo de Juventus",s:"cabezon"},
+    {w:"maschio",h:"Humberto de Los Angeles Tres",s:"angeles"},
+    {w:"angelillo",h:"Antonio de Los Angeles Tres",s:"angeles"},
+    {w:"grillo",h:"Ernesto crack historico",s:"ernesto"},
+    {w:"sosa",h:"Pedro del 82 oscuro campeon",s:"pedro"},
+    {w:"tarantini",h:"Alberto lateral del 78",s:"conejo"},
+    {w:"houseman",h:"Rene extremo del 78",s:"rene"},
+    {w:"luque",h:"Leopoldo del 78 goleador",s:"leopoldo"},
+    {w:"villa",h:"Ricky el de Tottenham del 78",s:"ricky"},
+    {w:"trossero",h:"Erico defensor del 86",s:"erico"},
+    {w:"altobelli",h:"No es argentino pero jugo en arg",s:"inter"},
+    {w:"verón",h:"Juan Sebastian la Brujita",s:"brujita"},
+    {w:"tevez",h:"Carlos el Apache crack de todos",s:"apache"},
+    {w:"riquelme",h:"Juan Roman idolo de Boca",s:"roman"},
+    {w:"gallardo",h:"Marcelo idolo y tecnico River",s:"marcelo"},
+    {w:"palermo",h:"Martin el de Boca Juniors",s:"titan"},
+    {w:"sorin",h:"Juan Pablo el Pachorra de River",s:"pachorra"},
+    {w:"placente",h:"Leonardo defensor de River",s:"leo"},
+    {w:"astrada",h:"Leonardo volante de River",s:"leo"},
+    {w:"rambert",h:"Roberto delantero de River",s:"roberto"},
+    {w:"cavenaghi",h:"Fernando delantero de River",s:"fernando"},
+    {w:"rojas",h:"Sebastian el Loco de River",s:"loco"},
+    {w:"fabbiani",h:"Roberto el Pirata Fabbiani",s:"pirata"},
+    {w:"bilos",h:"Diego arquero de Estudiantes",s:"diego"},
+    {w:"verri",h:"Mauro delantero de Newells",s:"mauro"},
+    {w:"dalessandro",h:"D Alessandro volante de River",s:"andres"},
+    {w:"moran",h:"Santiago extremo de River",s:"santiago"},
+    {w:"kranevitter",h:"Matias volante de Atletico",s:"matias"},
+    {w:"scocco",h:"Ignacio el Narigon de River",s:"narigon"},
+    {w:"ponzio",h:"Leonardo el Baluarte River",s:"leonardo"},
+    {w:"lanzini",h:"Manuel el Mago de River",s:"mago"},
+    {w:"mora",h:"Lucas delantero goleador River",s:"lucas"},
+    /* ── CLUBES DEL INTERIOR ── */
+    {w:"talleres",h:"La T de Cordoba fundada 1913",s:"cordoba"},
+    {w:"belgrano",h:"El Pirata de barrio Alberdi",s:"pirata"},
+    {w:"instituto",h:"La Gloria de Cordoba",s:"gloria"},
+    {w:"gloria",h:"Apodo de Instituto Cordoba",s:"instituto"},
+    {w:"atletico",h:"Tucuman el Decano del Norte",s:"decano"},
+    {w:"colon",h:"El Sabalero de Santa Fe",s:"sabalero"},
+    {w:"union",h:"El Tate de Santa Fe",s:"tate"},
+    {w:"newells",h:"La Lepra de Rosario",s:"lepra"},
+    {w:"central",h:"Rosario Central el Canalla",s:"canalla"},
+    {w:"godoy",h:"Cruz el Tomba mendocino",s:"tomba"},
+    {w:"aldosivi",h:"El Tiburon de Mar del Plata",s:"tiburon"},
+    {w:"marplatense",h:"Equipo de Mar del Plata",s:"aldosivi"},
+    {w:"olimpo",h:"El Aurinegro de Bahia Blanca",s:"aurinegro"},
+    {w:"quilmes",h:"El Cervecero historico",s:"cervecero"},
+    {w:"platense",h:"El Calamar de Vicente Lopez",s:"calamar"},
+    {w:"tigre",h:"El Matador de Victoria",s:"matador"},
+    {w:"banfield",h:"El Taladro del sur bonaerense",s:"taladro"},
+    {w:"lanus",h:"El Granate del conurbano sur",s:"granate"},
+    {w:"arsenal",h:"El Arse de Sarandi",s:"sarandi"},
+    {w:"defensa",h:"Justicia el Halcon de Florencio",s:"halcon"},
+    {w:"patronato",h:"El Santo de Entre Rios",s:"santo"},
+    {w:"huracan",h:"El Globo de Parque Patricios",s:"globo"},
+    {w:"santelmo",h:"El Ateneo de Dock Sud",s:"ateneo"},
+    {w:"riestra",h:"El Malevo de Villa del Parque",s:"malevo"},
+    {w:"chacarita",h:"El Funebrero de Villa Maipú",s:"funebrero"},
+    {w:"funebrero",h:"Apodo de Chacarita Juniors",s:"chacarita"},
+    {w:"almagro",h:"El Tricolor de Almagro",s:"tricolor"},
+    {w:"ferro",h:"El Verde de Caballito",s:"verde"},
+    {w:"atlanta",h:"El Bohemio de Villa Crespo",s:"bohemio"},
+    {w:"comunicaciones",h:"El Ferroviario de Argentina",s:"ferroviario"},
+    {w:"argentinos",h:"Juniors el Bicho de La Paternal",s:"bicho"},
+    {w:"bicho",h:"Apodo de Argentinos Juniors",s:"argentinos"},
+    {w:"deportivo",h:"Armenio o Morón en Argentina",s:"club"},
+    {w:"moron",h:"El Gallo de Moron",s:"gallo"},
+    {w:"lomas",h:"Atletico de Lomas de Zamora",s:"atletico"},
+    {w:"fenix",h:"El Ave Fenix de Villa del Parque",s:"ave"},
+    {w:"excursionistas",h:"El Decano del Norte de GBA",s:"norte"},
+    {w:"villa",h:"Dalmine de Campana o San Carlos",s:"dalmine"},
+    {w:"dalmine",h:"El Verde de Campana",s:"verde"},
+    {w:"acassuso",h:"Club del norte bonaerense",s:"norte"},
+    {w:"temperley",h:"El Celeste del sur GBA",s:"celeste"},
+    {w:"brown",h:"Puerto Madryn o Adrogue",s:"puerto"},
+    {w:"laferrere",h:"El Loco de Gregorio Laferrere",s:"loco"},
+    {w:"ituzaingo",h:"Club del oeste bonaerense",s:"oeste"},
+    {w:"tristan",h:"Suarez de Ezeiza",s:"suarez"},
+    {w:"san",h:"Martin de San Juan o Tucuman",s:"martin"},
+    {w:"juventud",h:"Antoniana de Salta",s:"antoniana"},
+    {w:"antoniana",h:"La Decana del Norte salteño",s:"salta"},
+    {w:"central",h:"Norte de Santiago del Estero",s:"norte"},
+    {w:"sarmiento",h:"El Verde de Junin bonaerense",s:"verde"},
+    {w:"alvarado",h:"El Torito de Mar del Plata",s:"torito"},
+    {w:"kimberley",h:"Club de Mar del Plata",s:"mardelplata"},
+    {w:"deportivo",h:"Roca de Rio Negro Patagonia",s:"roca"},
+    {w:"cipolletti",h:"El Albinegro de Rio Negro",s:"albinegro"},
+    {w:"independiente",h:"Rivadavia de Mendoza",s:"mendoza"},
+    {w:"godoy",h:"Cruz de Mendoza el Tomba",s:"tomba"},
+    {w:"huracan",h:"Las Heras de Mendoza",s:"mendoza"},
+    {w:"atletico",h:"San Martin de Mendoza",s:"mendoza"},
+    /* ── 50 NUEVAS ── */
+    {w:"hectareaje",h:"Superficie del campo de juego en fútbol",s:"campo"},
+    {w:"offside",h:"Posición adelantada o fuera de juego",s:"adelantado"},
+    {w:"arbitro",h:"El juez que dirige el partido",s:"juez"},
+    {w:"linesman",h:"Árbitro asistente de la línea lateral",s:"auxiliar"},
+    {w:"var",h:"Sistema de revisión de video en el fútbol moderno",s:"video"},
+    {w:"tarjeta",h:"Amarilla o roja para sancionar a un jugador",s:"sancion"},
+    {w:"expulsion",h:"Cuando un jugador recibe tarjeta roja",s:"tarjeta"},
+    {w:"amonestacion",h:"Tarjeta amarilla que advierte al jugador",s:"advertencia"},
+    {w:"penalti",h:"Tiro desde el punto penal por falta en el area",s:"penal"},
+    {w:"tiro",h:"Libre directo o indirecto en el futbol",s:"falta"},
+    {w:"saque",h:"Reanudar el juego desde la línea lateral o de fondo",s:"banda"},
+    {w:"corner",h:"Tiro de esquina cuando el defensor manda la pelota al fondo",s:"saque"},
+    {w:"gol",h:"Cuando el balón entra en el arco del rival",s:"tanto"},
+    {w:"portero",h:"El arquero que defiende el arco",s:"arquero"},
+    {w:"defensa",h:"Línea de jugadores que protegen el arco",s:"zaga"},
+    {w:"mediocampo",h:"Zona central del campo de juego",s:"volantes"},
+    {w:"delantera",h:"Línea de jugadores que atacan el arco rival",s:"ataque"},
+    {w:"pase",h:"Acción de enviar el balón a un compañero",s:"asistencia"},
+    {w:"dribbling",h:"Regate o gambeta para superar a un rival",s:"gambeta"},
+    {w:"cabezazo",h:"Gol o pase con la cabeza",s:"remate"},
+    {w:"volea",h:"Patear la pelota antes de que toque el suelo",s:"patada"},
+    {w:"tijera",h:"Chilena o gol de volea hacia atrás",s:"chilena"},
+    {w:"pared",h:"Combinación de pase y devolución entre dos jugadores",s:"pase"},
+    {w:"presion",h:"Táctica de marcar al rival en su propio campo",s:"pressing"},
+    {w:"contraataque",h:"Ataque veloz tras recuperar el balón",s:"contragolpe"},
+    {w:"formacion",h:"Disposición táctica de los jugadores en el campo",s:"tactica"},
+    {w:"patadejuego",h:"El puntapié inicial para empezar el partido",s:"inicio"},
+    {w:"alargue",h:"Tiempo extra cuando el partido termina empatado",s:"prorroga"},
+    {w:"penales",h:"Definición mediante tiros desde el punto penal",s:"penaltis"},
+    {w:"tribuna",h:"Sector del estadio donde se ubica el público",s:"graderia"},
+    {w:"popular",h:"Sector sin asientos numerados en el estadio",s:"gradas"},
+    {w:"platea",h:"Sector techado y con asientos en el estadio",s:"tribuna"},
+    {w:"palco",h:"Zona VIP del estadio para autoridades",s:"vip"},
+    {w:"hincha",h:"Fanático apasionado de un club de fútbol",s:"fanatico"},
+    {w:"socio",h:"Miembro oficial de un club de fútbol",s:"afiliado"},
+    {w:"directivo",h:"Miembro de la comisión directiva de un club",s:"dirigente"},
+    {w:"presidente",h:"Máxima autoridad de un club de fútbol",s:"directivo"},
+    {w:"transferencia",h:"Pase de un jugador de un club a otro",s:"pase"},
+    {w:"clausula",h:"Monto que libera a un jugador de su contrato",s:"rescision"},
+    {w:"contrato",h:"Acuerdo entre jugador y club",s:"acuerdo"},
+    {w:"juveniles",h:"Divisiones formativas de los clubes",s:"inferiores"},
+    {w:"inferiores",h:"Categorías de formación en los clubes",s:"juveniles"},
+    {w:"debut",h:"Primera vez que un jugador actúa en primera",s:"estreno"},
+    {w:"retiro",h:"Cuando un jugador deja de jugar al fútbol",s:"despedida"},
+    {w:"homenaje",h:"Reconocimiento especial a un jugador histórico",s:"tributo"},
+    {w:"mundialista",h:"Jugador que participó en un Mundial",s:"seleccionado"},
+    {w:"seleccionado",h:"Jugador convocado para la selección nacional",s:"mundialista"},
+    {w:"albiceleste",h:"Apodo de la selección argentina por sus colores",s:"seleccion"},
+    {w:"qatar",h:"País donde Argentina ganó el Mundial 2022",s:"mundial"},
+    {w:"campeon",h:"Equipo o jugador que gana un torneo",s:"ganador"}
+  ]
+};
+
+/* ── 4 grupos de error ── */
+const MAX_ERRORS = 4;
+const ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const PLAYER_COLORS=['#ff6b6b','#4ecdc4','#ffd700','#a29bfe'];
+const PLAYER_CLASSES=['p1','p2','p3','p4'];
+const ALL_CATS=['arte','ciencia','cultura','historia','futbol'];
+const CAT_DATA={
+  arte:{name:'Arte',icon:'🎨',cls:'arte'},
+  ciencia:{name:'Ciencia',icon:'🔬',cls:'ciencia'},
+  cultura:{name:'Cultura Arg.',icon:'🧉',cls:'cultura'},
+  historia:{name:'Historia Arg.',icon:'📜',cls:'historia'},
+  futbol:{name:'Fútbol Arg.',icon:'⚽',cls:'futbol'}
+};
+let state={
+  cat:null, players:[], curPlayer:0,
+  word:'', hint:'', synonym:'',
+  guessed:[], errors:0,
+  usedHintPista:false, usedHintSinonimo:false,
+  lettersRevealed:1,
+  wordPool:[], usedWords:[],
+  roundsInTanda:0, catPool:[],
+  pendingWinner:false,
+  timeLimit:120,   /* segundos por turno (0 = sin límite) */
+  soloMode:false,  /* un solo jugador → reloj global */
+  soloTimeLeft:0,
+  turnTimeLeft:0,
+  timerInterval:null
+};
+
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ── Detectar si solo hay 1 jugador al cambiar inputs ── */
+function updateSoloNote(){
+  let names=[];
+  for(let i=1;i<=4;i++){let v=document.getElementById('p'+i+'name').value.trim();if(v)names.push(v);}
+  document.getElementById('solo-note').style.display=names.length<=1?'block':'none';
+}
+['p1name','p2name','p3name','p4name'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',updateSoloNote);
+});
+
+function selectCat(cat){
+  state.cat=cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.style.outline='none');
+  document.querySelector('.cat-btn.'+cat).style.outline='2px solid currentColor';
+  document.getElementById('home-msg').textContent='';
+}
+
+document.getElementById('btn-start-game').onclick=function(){
+  if(!state.cat){document.getElementById('home-msg').textContent='Elegí una categoría primero';return;}
+  let names=[];
+  for(let i=1;i<=4;i++){let v=document.getElementById('p'+i+'name').value.trim();if(v)names.push(v);}
+  if(names.length===0)names=['Jugador 1'];
+  state.players=names.map((n,i)=>({name:n,score:0,color:PLAYER_COLORS[i],cls:PLAYER_CLASSES[i]}));
+  state.curPlayer=0;
+  state.wordPool=shuffle([...WORDS[state.cat]]);
+  state.usedWords=[];
+  state.roundsInTanda=0;
+  state.catPool=[];
+  state.pendingWinner=false;
+  /* Lee tiempo seleccionado */
+  let sel=document.querySelector('input[name="timelimit"]:checked');
+  state.timeLimit=sel?parseInt(sel.value):120;
+  state.soloMode=state.players.length===1;
+  /* Modo solo: tiempo global = 5 min normal / 4 min difícil */
+  if(state.soloMode){
+    state.soloTimeLeft=state.timeLimit===60?240:300;
+  }
+  startRound();
+};
+
+function pickNextCat(){
+  if(state.catPool.length===0) state.catPool=shuffle(ALL_CATS.filter(c=>c!==state.cat));
+  state.cat=state.catPool.pop();
+  state.wordPool=shuffle([...WORDS[state.cat]]);
+}
+
+/* ══════════════════════════════
+   TIMER
+══════════════════════════════ */
+function stopTimer(){
+  if(state.timerInterval){clearInterval(state.timerInterval);state.timerInterval=null;}
+  let cd=document.getElementById('clock-display');
+  cd.className='clock-display hidden';
+}
+
+function startTimer(){
+  stopTimer();
+  if(state.timeLimit===0 && !state.soloMode){
+    document.getElementById('clock-display').className='clock-display hidden';
+    return;
+  }
+  if(state.soloMode){
+    /* Solo mode: cuenta el tiempo global restante */
+    updateClockDisplay(state.soloTimeLeft);
+    state.timerInterval=setInterval(()=>{
+      state.soloTimeLeft--;
+      updateClockDisplay(state.soloTimeLeft);
+      if(state.soloTimeLeft<=0){
+        stopTimer();
+        soloTimeUp();
+      }
+    },1000);
+  }else{
+    state.turnTimeLeft=state.timeLimit;
+    updateClockDisplay(state.turnTimeLeft);
+    state.timerInterval=setInterval(()=>{
+      state.turnTimeLeft--;
+      updateClockDisplay(state.turnTimeLeft);
+      if(state.turnTimeLeft<=0){
+        stopTimer();
+        turnTimeUp();
+      }
+    },1000);
+  }
+}
+
+function updateClockDisplay(secs){
+  let cd=document.getElementById('clock-display');
+  let ct=document.getElementById('clock-time');
+  let m=Math.floor(secs/60);
+  let s=secs%60;
+  ct.textContent=(m>0?m+'m ':'')+String(s).padStart(2,'0')+'s';
+  cd.className='clock-display'+(secs<=10?' danger':secs<=30?' warning':'');
+}
+
+function turnTimeUp(){
+  /* Tiempo agotado en turno → pierde la palabra, avanza */
+  document.getElementById('gameover-title').textContent='⏰ ¡TIEMPO!';
+  document.getElementById('gameover-reason').textContent='Se acabó el tiempo. La palabra pasa al siguiente jugador.';
+  document.getElementById('gameover-word-show').textContent=state.word;
+  /* Mostrar horca completa solo visualmente sin tocar state.errors */
+  for(let i=1;i<=4;i++) document.getElementById('hg-'+i).setAttribute('display','');
+  showScreen('gameover');
+}
+
+function soloTimeUp(){
+  /* Modo solo: se acabó el tiempo global */
+  document.getElementById('gameover-title').textContent='⏰ ¡TIEMPO!';
+  document.getElementById('gameover-reason').textContent='Se terminó el tiempo. Partida terminada.';
+  document.getElementById('gameover-word-show').textContent=state.word;
+  for(let i=1;i<=4;i++) document.getElementById('hg-'+i).setAttribute('display','');
+  showScreen('gameover');
+  /* Reemplazar botón "siguiente ronda" por botón "ver resultado" */
+  document.querySelector('#screen-gameover .btn-continue').onclick=showWinner;
+  document.querySelector('#screen-gameover .btn-continue').textContent='Ver resultado';
+}
+
+/* ══════════════════════════════
+   RONDAS
+══════════════════════════════ */
+function startRound(){
+  if(state.wordPool.length===0) state.wordPool=shuffle([...WORDS[state.cat]]);
+  let entry=state.wordPool.pop();
+  state.word=entry.w.toUpperCase();
+  state.hint=entry.h;
+  state.synonym=entry.s.toUpperCase();
+  state.guessed=[];
+  state.errors=0;          /* ← resetea errores → horca vacía garantizada */
+  state.usedHintPista=false;
+  state.usedHintSinonimo=false;
+  state.lettersRevealed=1;
+  /* Restaurar botón "siguiente ronda" si fue reemplazado */
+  let btn=document.querySelector('#screen-gameover .btn-continue');
+  btn.onclick=afterGameOver;
+  btn.textContent='Siguiente ronda';
+  showScreen('game');
+  updateCatBadge();
+  renderAll();
+  setMsg('','');
+  let hd=document.getElementById('hint-display');hd.className='hint-display';hd.innerHTML='';
+  document.getElementById('word-guess-input').value='';
+  document.getElementById('hint-pista').disabled=false;
+  document.getElementById('hint-sinonimo').disabled=false;
+  startTimer();
+}
+
+function updateCatBadge(){
+  let cd=CAT_DATA[state.cat];
+  let badge=document.getElementById('cat-badge-display');
+  badge.className='cat-badge '+cd.cls;
+  badge.textContent=cd.icon+' '+cd.name.toUpperCase();
+}
+
+/* ══════════════════════════════
+   RENDER
+══════════════════════════════ */
+function renderAll(){
+  renderGallows();renderWord();renderErrors();renderAlphabet();renderScoreboard();
+  document.getElementById('turn-name').textContent=state.players[state.curPlayer].name;
+}
+
+function renderGallows(){
+  /* FIX: usa state.errors para decidir qué mostrar → siempre empieza vacío */
+  for(let i=1;i<=4;i++){
+    let el=document.getElementById('hg-'+i);
+    if(el) el.setAttribute('display', i<=state.errors ? '' : 'none');
+  }
+}
+
+function renderWord(){
+  let container=document.getElementById('word-letters');container.innerHTML='';
+  state.word.split('').forEach((ch,i)=>{
+    let div=document.createElement('div');div.className='letter-box';
+    if(i===0||state.guessed.includes(ch)){div.textContent=ch;if(i>0)div.className+=' revealed';}
+    else{div.textContent='_';}
+    container.appendChild(div);
+  });
+  document.getElementById('first-letter').textContent=state.word[0];
+}
+
+function renderErrors(){
+  document.getElementById('error-count').textContent=state.errors;
+  let dots=document.getElementById('error-dots');dots.innerHTML='';
+  for(let i=0;i<MAX_ERRORS;i++){
+    let d=document.createElement('div');
+    d.className='error-dot'+(i<state.errors?' active':'');
+    dots.appendChild(d);
+  }
+}
+
+function renderAlphabet(){
+  let grid=document.getElementById('alphabet-grid');grid.innerHTML='';
+  ALPHABET.forEach(ch=>{
+    let btn=document.createElement('button');btn.className='letter-btn';btn.textContent=ch;
+    if(state.guessed.includes(ch)){
+      btn.className+=state.word.includes(ch)?' correct':' wrong';
+      btn.disabled=true;
+    }else{btn.onclick=()=>guessLetter(ch);}
+    grid.appendChild(btn);
+  });
+}
+
+function renderScoreboard(){
+  let sb=document.getElementById('scoreboard');sb.innerHTML='';
+  let maxScore=Math.max(...state.players.map(p=>p.score));
+  state.players.forEach((p,i)=>{
+    let row=document.createElement('div');
+    row.className='player-score-row'+(i===state.curPlayer?' active-player':'');
+    let crown=(state.pendingWinner&&p.score>=100&&p.score===maxScore)?' 👑':'';
+    row.innerHTML=`<div class="player-avatar ${p.cls}" style="background:${p.color};color:${i<2?'#fff':'#000'}">${p.name[0].toUpperCase()}</div>
+      <div class="player-score-info">
+        <div class="player-score-name" style="color:${p.color}">${p.name}${crown}</div>
+        <div class="player-score-pts">${p.score} / 100 pts</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${Math.min(p.score,100)}%;background:${p.color}"></div></div>
+      </div>`;
+    sb.appendChild(row);
+  });
+}
+
+/* ══════════════════════════════
+   JUEGO
+══════════════════════════════ */
+function guessLetter(ch){
+  if(state.guessed.includes(ch))return;
+  state.guessed.push(ch);
+  if(state.word.includes(ch)){
+    setMsg('¡Bien! La letra '+ch+' está en la palabra','msg-success');
+    state.lettersRevealed++;
+    checkWin();
+  }else{
+    state.errors++;
+    setMsg('Error: la letra '+ch+' no está','msg-error');
+    if(state.errors>=MAX_ERRORS){stopTimer();gameOver('ahorcado');return;}
+  }
+  renderAll();
+}
+
+function guessWord(){
+  let input=document.getElementById('word-guess-input');
+  let guess=input.value.trim().toUpperCase();input.value='';
+  if(!guess){setMsg('Escribí una palabra','msg-info');return;}
+  if(guess===state.word){
+    stopTimer();
+    let pts=state.lettersRevealed<=1?30:state.lettersRevealed===2?20:10;
+    state.players[state.curPlayer].score+=pts;
+    if(state.players[state.curPlayer].score>=100) state.pendingWinner=true;
+    setMsg('¡Correcto! +'+pts+' pts para '+state.players[state.curPlayer].name,'msg-success');
+    renderAll();
+    setTimeout(()=>advanceAfterRound(),1800);
+  }else{
+    state.errors++;
+    setMsg('Incorrecto: la palabra no es '+guess,'msg-error');
+    if(state.errors>=MAX_ERRORS){stopTimer();gameOver('ahorcado');return;}
+    state.curPlayer=(state.curPlayer+1)%state.players.length;
+    renderAll();
+  }
+}
+
+function checkWin(){
+  let allRevealed=state.word.split('').every((ch,i)=>i===0||state.guessed.includes(ch));
+  if(allRevealed){
+    stopTimer();
+    let pts=state.lettersRevealed<=2?30:state.lettersRevealed<=3?20:10;
+    state.players[state.curPlayer].score+=pts;
+    if(state.players[state.curPlayer].score>=100) state.pendingWinner=true;
+    setMsg('¡Completaste la palabra! +'+pts+' pts','msg-success');
+    renderAll();
+    setTimeout(()=>advanceAfterRound(),1800);
+  }
+}
+
+function gameOver(reason){
+  /* FIX: NO cambia state.errors aquí → startRound lo reseteará a 0 → horca vacía */
+  let title='☠️ AHORCADO';
+  let reasonText='';
+  if(reason==='ahorcado'){
+    title='☠️ AHORCADO';
+    reasonText='';
+    /* Solo para mostrar horca completa en pantalla gameover usamos el render actual */
+    renderGallows(); /* state.errors ya es MAX_ERRORS */
+  }
+  document.getElementById('gameover-title').textContent=title;
+  document.getElementById('gameover-reason').textContent=reasonText;
+  document.getElementById('gameover-word-show').textContent=state.word;
+  showScreen('gameover');
+}
+
+function afterGameOver(){
+  state.curPlayer=(state.curPlayer+1)%state.players.length;
+  state.roundsInTanda++;
+  checkTandaAndStart();
+}
+
+function advanceAfterRound(){
+  state.curPlayer=(state.curPlayer+1)%state.players.length;
+  state.roundsInTanda++;
+  checkTandaAndStart();
+}
+
+function checkTandaAndStart(){
+  if(state.soloMode){
+    /* Solo: no hay tandas, verifica si se agotó el tiempo global */
+    if(state.soloTimeLeft<=0){showWinner();return;}
+    startRound();
+    return;
+  }
+  if(state.roundsInTanda>=state.players.length){
+    state.roundsInTanda=0;
+    if(state.pendingWinner){showWinner();return;}
+    pickNextCat();
+    let cd=CAT_DATA[state.cat];
+    setMsg('🔀 ¡Nueva categoría! → '+cd.icon+' '+cd.name,'msg-info');
+    updateCatBadge();
+    setTimeout(()=>startRound(),1600);
+  }else{
+    startRound();
+  }
+}
+
+function useHint(type){
+  if(type==='pista'){
+    if(state.usedHintPista)return;
+    state.usedHintPista=true;state.errors+=1;
+    if(state.errors>=MAX_ERRORS){stopTimer();gameOver('ahorcado');return;}
+    let d=document.getElementById('hint-display');
+    d.className='hint-display visible';
+    d.innerHTML='<strong>💡 Pista:</strong> '+state.hint;
+    document.getElementById('hint-pista').disabled=true;
+    setMsg('-1 error por pista','msg-info');renderAll();
+  }else{
+    if(state.usedHintSinonimo)return;
+    state.usedHintSinonimo=true;state.errors+=2;
+    if(state.errors>=MAX_ERRORS){stopTimer();gameOver('ahorcado');return;}
+    let d=document.getElementById('hint-display');
+    d.className='hint-display visible';
+    let existing=state.usedHintPista ? d.innerHTML+'<br>' : '';
+    d.innerHTML=existing+'<strong>📖 Sinónimo:</strong> '+state.synonym;
+    document.getElementById('hint-sinonimo').disabled=true;
+    setMsg('-2 errores por sinónimo','msg-info');renderAll();
+  }
+}
+
+/* ══════════════════════════════
+   GANADOR — con manejo de empate
+══════════════════════════════ */
+function showWinner(){
+  stopTimer();
+  let maxScore=Math.max(...state.players.map(p=>p.score));
+  let winners=state.players.filter(p=>p.score===maxScore);
+  let titleEl=document.getElementById('winner-title');
+  let nameEl=document.getElementById('winner-name');
+  if(winners.length>1){
+    titleEl.textContent='🏆 ¡EMPATE!';
+    nameEl.innerHTML='🎉 Campeones:<br>'+winners.map(w=>`<span style="color:${w.color}">${w.name}</span>`).join(' & ');
+  }else{
+    titleEl.textContent='🏆 ¡GANADOR!';
+    nameEl.textContent='🎉 '+winners[0].name;
+  }
+  let fs=document.getElementById('final-scores');fs.innerHTML='';
+  let sorted=[...state.players].sort((a,b)=>b.score-a.score);
+  sorted.forEach(p=>{
+    let isWinner=p.score===maxScore;
+    let row=document.createElement('div');
+    row.className='final-score-row'+(isWinner?' winner':'');
+    row.innerHTML=`<span style="color:${p.color};font-weight:700">${isWinner?'🏆 ':''}${p.name}</span><span style="font-weight:700">${p.score} pts</span>`;
+    fs.appendChild(row);
+  });
+  showScreen('result');
+}
+
+function goHome(){
+  stopTimer();
+  showScreen('home');
+  state.cat=null;
+  state.pendingWinner=false;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.style.outline='none');
+}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active');}
+function setMsg(text,cls){let m=document.getElementById('msg-area');m.textContent=text;m.className='msg-area '+(cls||'');}
+
+document.addEventListener('keydown',function(e){
+  if(!document.getElementById('screen-game').classList.contains('active'))return;
+  if(document.activeElement===document.getElementById('word-guess-input'))return;
+  if(e.key.length===1&&e.key.match(/[a-zA-ZñÑ]/)){
+    let ch=e.key.toUpperCase().replace('Ñ','N');
+    if(ALPHABET.includes(ch)&&!state.guessed.includes(ch))guessLetter(ch);
+  }
+});
+let state={
+  cat:null, players:[], curPlayer:0,
+  word:'', hint:'', synonym:'',
+  guessed:[], errors:0,
+  usedHintPista:false, usedHintSinonimo:false,
+  lettersRevealed:1,
+  wordPool:[], usedWords:[],
+  roundsInTanda:0,
+  catPool:[],
+  pendingWinner:false   /* alguien llegó a 100 pero esperamos que todos terminen la tanda */
+};
+
+</script>
+</body>
+</html>
